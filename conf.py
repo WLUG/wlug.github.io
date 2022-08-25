@@ -235,17 +235,22 @@ THEME_CONFIG = {
 #         ("pages/*.md", {"en": "pages", "de": "seiten"}, "page.tmpl"),
 #     )
 
-POSTS = (
-    ("posts/*.rst", "posts", "post.tmpl"),
-    ("posts/*.md", "posts", "post.tmpl"),
-    ("posts/*.txt", "posts", "post.tmpl"),
-    ("posts/*.html", "posts", "post.tmpl"),
-)
+# Edited out by Ian 2022-08-25 - Don't want bloggingposts
+POSTS = () #= (
+#    ("posts/*.rst", "posts", "post.tmpl"),
+#    ("posts/*.md", "posts", "post.tmpl"),
+#    ("posts/*.txt", "posts", "post.tmpl"),
+#    ("posts/*.html", "posts", "post.tmpl"),
+#)
+#
+# Ian 2022-08-25
+# Change from: "pages/*.rst", "pages", "page.tmpl" to:"pages/*.rst", "", "page.tmpl"
+# Also see line 589 regarding INDEX_PATH = blog
 PAGES = (
-    ("pages/*.rst", "pages", "page.tmpl"),
-    ("pages/*.md", "pages", "page.tmpl"),
-    ("pages/*.txt", "pages", "page.tmpl"),
-    ("pages/*.html", "pages", "page.tmpl"),
+    ("pages/*.rst", "", "page.tmpl"),
+    ("pages/*.md", "", "page.tmpl"),
+    ("pages/*.txt", "", "page.tmpl"),
+    ("pages/*.html", "", "page.tmpl"),
 )
 
 
@@ -580,7 +585,9 @@ HIDDEN_AUTHORS = ['Guest']
 # Final location for the main blog page and sibling paginated pages is
 # output / TRANSLATION[lang] / INDEX_PATH / index-*.html
 # (translatable)
-# INDEX_PATH = ""
+#
+# Edited by Ian 2022-08-25 - Avoid conflict because blogs try to generate /index.html
+INDEX_PATH = "blog"
 
 # Optional HTML that displayed on “main” blog index.html files.
 # May be used for a greeting. (translatable)
@@ -1352,6 +1359,8 @@ MARKDOWN_EXTENSIONS = ['markdown.extensions.fenced_code', 'markdown.extensions.c
 
 # Special settings to disable only parts of the indexes plugin.
 # Use with care.
+#
+# Ian - if DISABLE_INDEXES = True, then don't need INDEX_PATH = "blog"
 # DISABLE_INDEXES = False
 # DISABLE_MAIN_ATOM_FEED = False
 # DISABLE_MAIN_RSS_FEED = False
