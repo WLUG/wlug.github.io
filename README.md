@@ -1,6 +1,6 @@
 # wlug.github.io
 
-Main static web-site for wlug
+Main static web-site for Waikato Linux Users Group (WLUG).
 
 Currently located at: https://github.com/irsbugs/wlug.github.io
 
