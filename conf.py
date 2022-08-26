@@ -738,6 +738,10 @@ REDIRECTIONS = []
 # You will need to configure the deployment branch on GitHub.
 GITHUB_SOURCE_BRANCH = 'src'
 # Ian 2022-08-26 Github has replaced "master" with "main" E.g.
+# git remote -v
+# origin	https://github.com/irsbugs/wlug.github.io.git (fetch)
+# origin	https://github.com/irsbugs/wlug.github.io.git (push)
+#
 # git add .
 # git commit -m "Modified markdown files"
 # git push origin main
