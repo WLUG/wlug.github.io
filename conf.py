@@ -140,23 +140,68 @@ TRANSLATIONS_PATTERN = '{path}.{lang}.{ext}'
 #          with a ``/``, otherwise end them with ``/index.html`` — or
 #          else they won’t be highlighted when active.
 
+# Edited by Ian 2022-08-26
+#NAVIGATION_LINKS = {
+#    DEFAULT_LANG: (
+#        ("/archive.html", "Archive"),
+#        ("/categories/", "Tags"),
+#        ("/rss.xml", "RSS feed"),
+#    ),
+#}
+#
+# Ian - Note that folder must match the filename without the .md or .rst.
+# E.g. /agm-minutes/ needs the file agm-minutes.md or agm-minutes-rst
+"""
 NAVIGATION_LINKS = {
     DEFAULT_LANG: (
-        ("/archive.html", "Archive"),
-        ("/categories/", "Tags"),
-        ("/rss.xml", "RSS feed"),
+        ("/index.html", "Home"),        
+        ("/agm-minutes/", "Minuted Meetings"),
+        ("/about-us/", "About Us"),
     ),
 }
-
+"""
+# Oct 28, 2018, 12:07:40 AM
+# 3 independent instances are unnecessary. You will probably need a
+# custom navigation setup that doesn't use NAVIGATION_LINKS as is (3
+# templates + 3 menu variables in global context?) Chris Warrick <https://chriswarrick.com/> 
+#
+# This will give a drop down from "Steps" on the navigation bar. 
+# With selection of the different steps.
+#        (
+#            (
+#                ('/steps/', 'Overview of Steps'),
+#                ('/step1/', '1. PythonAnywhere Account'),
+#                ('/step2/', '2. Nikola Installation'),
+#                ('/step3/', '3. Creating a Website'),
+#            ),
+#            '<strong>Steps</strong>'
+#        ), 
+#
 # Alternative navigation links. Works the same way NAVIGATION_LINKS does,
 # although themes may not always support them. (translatable)
 # (Bootstrap 4: right-side of navbar, Bootblog 4: right side of title)
+# Ian 2022-08-26 - but not vertically aligned.
+
 NAVIGATION_ALT_LINKS = {
-    DEFAULT_LANG: ()
+    DEFAULT_LANG: (
+        ("/index.html", "Home"),
+        (
+            (
+                ('/agm-overview/', 'AGM Overview'),
+                ('/2002-agm/', '2002 AGM'),
+                ('/2003-agm/', '2003 AGM'),                
+            ),
+            '<strong>AGM Minutes</strong>'            
+        ),
+        ("/about-us/", "About Us"),        
+    )
 }
 
+
 # Name of the theme to use.
-THEME = "bootblog4"
+# Ian 2022-08-26
+#THEME = "bootblog4"
+THEME = "bootstrap4"
 
 # A theme color. In default themes, it might be displayed by some browsers as
 # the browser UI color (eg. Chrome on Android). Other themes might also use it
@@ -349,7 +394,9 @@ COMPILERS = {
 # "YAML": YAML wrapped in "---"
 # "TOML": TOML wrapped in "+++"
 # "Pelican": Native markdown metadata or reST docinfo fields. Nikola style for other formats.
+# Ian 2022-08-26
 # METADATA_FORMAT = "Nikola"
+METADATA_FORMAT = "Pelican"
 
 # Use date-based path when creating posts?
 # Can be enabled on a per-post basis with `nikola new_post -d`.
@@ -369,8 +416,10 @@ COMPILERS = {
 # Nikola supports logo display.  If you have one, you can put the URL here.
 # Final output is <img src="LOGO_URL" id="logo" alt="BLOG_TITLE">.
 # The URL may be relative to the site root.
+# Ian 2022-08-26
 # LOGO_URL = ''
-
+LOGO_URL = "/images/penguin_head_left_40x44.png" 
+#
 # When linking posts to social media, Nikola provides Open Graph metadata
 # which is used to show a nice preview. This includes an image preview
 # taken from the post's previewimage metadata field.
@@ -688,8 +737,12 @@ REDIRECTIONS = []
 # https://getnikola.com/handbook.html#deploying-to-github
 # You will need to configure the deployment branch on GitHub.
 GITHUB_SOURCE_BRANCH = 'src'
-GITHUB_DEPLOY_BRANCH = 'master'
-
+# Ian 2022-08-26 Github has replaced "master" with "main" E.g.
+# git add .
+# git commit -m "Modified markdown files"
+# git push origin main
+# GITHUB_DEPLOY_BRANCH = 'master'
+GITHUB_DEPLOY_BRANCH = 'main'
 # The name of the remote where you wish to push to, using github_deploy.
 GITHUB_REMOTE_NAME = 'origin'
 
@@ -937,7 +990,8 @@ IMAGE_FOLDERS = {'images': 'images'}
 # Check with list(pygments.styles.get_all_styles()) in an interpreter.
 #
 # CODE_COLOR_SCHEME = 'default'
-
+#
+# Ian 2022-08-26
 # FAVICONS contains (name, file, size) tuples.
 # Used to create favicon link like this:
 # <link rel="name" href="file" sizes="size"/>
@@ -945,6 +999,10 @@ IMAGE_FOLDERS = {'images': 'images'}
 #     ("icon", "/favicon.ico", "16x16"),
 #     ("icon", "/icon_128x128.png", "128x128"),
 # )
+FAVICONS = (
+     ("icon", "/images/penguin_head_left_22x24.png", "24x24"),
+)
+
 
 # Show teasers (instead of full posts) in indexes? Defaults to False.
 # INDEX_TEASERS = False
@@ -979,19 +1037,25 @@ FEED_LINKS_APPEND_QUERY = False
 
 # A HTML fragment describing the license, for the sidebar.
 # (translatable)
-LICENSE = ""
+#
+# Ian 2022-08-26 - Add a license in the footer
+#LICENSE = ""
 # I recommend using the Creative Commons' wizard:
 # https://creativecommons.org/choose/
-# LICENSE = """
-# <a rel="license" href="https://creativecommons.org/licenses/by-nc-sa/4.0/">
-# <img alt="Creative Commons License BY-NC-SA"
-# style="border-width:0; margin-bottom:12px;"
-# src="https://i.creativecommons.org/l/by-nc-sa/4.0/88x31.png"></a>"""
-
+LICENSE = """
+ <a rel="license" href="https://creativecommons.org/licenses/by-nc-sa/4.0/">
+ <img alt="Creative Commons License BY-NC-SA"
+ style="float: right; margin: 0px 0px 5px 5px; border-width:0;"
+ src="https://i.creativecommons.org/l/by-nc-sa/4.0/88x31.png"></a>"""
+# Changed from style="border-width:0; margin-bottom:12px;"
+#
 # A small copyright notice for the page footer (in HTML).
 # (translatable)
-CONTENT_FOOTER = 'Contents &copy; {date}         <a href="mailto:{email}">{author}</a> - Powered by         <a href="https://getnikola.com" rel="nofollow">Nikola</a>         {license}'
-
+# Edited by Ian 2022-08-26
+#CONTENT_FOOTER = 'Contents &copy; {date}         <a href="mailto:{email}">{author}</a> - Powered by         <a #href="https://getnikola.com" rel="nofollow">Nikola</a>         {license}'
+# Ian - Place in BODY_END
+CONTENT_FOOTER = 'WLUG &copy; {date} - Powered by <a href="https://getnikola.com" #rel="nofollow">Nikola</a>   {license}'
+#
 # Things that will be passed to CONTENT_FOOTER.format().  This is done
 # for translatability, as dicts are not formattable.  Nikola will
 # intelligently format the setting properly.
@@ -1135,7 +1199,8 @@ PRETTY_URLS = True
 #       with the MarkdownExtension class and should not be added here.
 # Defaults are markdown.extensions.(fenced_code|codehilite|extra)
 # markdown.extensions.meta is required for Markdown metadata.
-MARKDOWN_EXTENSIONS = ['markdown.extensions.fenced_code', 'markdown.extensions.codehilite', 'markdown.extensions.extra']
+# # Ian 2022-08-22 add 'markdown.extensions.meta'
+MARKDOWN_EXTENSIONS = ['markdown.extensions.fenced_code', 'markdown.extensions.codehilite', 'markdown.extensions.extra', 'markdown.extensions.meta']
 
 # Options to be passed to markdown extensions (See https://python-markdown.github.io/reference/)
 # Default is {} (no config at all)
@@ -1259,8 +1324,9 @@ MARKDOWN_EXTENSIONS = ['markdown.extensions.fenced_code', 'markdown.extensions.c
 # Bootstrap is served from BootstrapCDN (provided by MaxCDN)
 # Set this to False if you want to host your site without requiring access to
 # external resources.
+# Ian 2022-08-26 - We want to use Content Distribution
 # USE_CDN = False
-
+USE_CDN = True
 # Check for USE_CDN compatibility.
 # If you are using custom themes, have configured the CSS properly and are
 # receiving warnings about incompatibility but believe they are incorrect, you
@@ -1270,12 +1336,15 @@ MARKDOWN_EXTENSIONS = ['markdown.extensions.fenced_code', 'markdown.extensions.c
 # Extra things you want in the pages HEAD tag. This will be added right
 # before </head>
 # (translatable)
-# EXTRA_HEAD_DATA = ""
+# Ian 2022-08-26 Doesn't support variables, E.g. {date}
+EXTRA_HEAD_DATA = "Incorporated Society {date}"
 # Google Analytics or whatever else you use. Added to the bottom of <body>
 # in the default template (base.tmpl).
 # (translatable)
+# Ian 2022-08-26 Doesn't support variables, E.g. {date}
 # BODY_END = ""
-
+# BODY_END = 'Contents &copy; {date} - Powered by <a href="https://getnikola.com" rel="nofollow">Nikola</a>   {license}'
+#
 # The possibility to extract metadata from the filename by using a
 # regular expression.
 # To make it work you need to name parts of your regular expression.
@@ -1360,7 +1429,7 @@ MARKDOWN_EXTENSIONS = ['markdown.extensions.fenced_code', 'markdown.extensions.c
 # Special settings to disable only parts of the indexes plugin.
 # Use with care.
 #
-# Ian - if DISABLE_INDEXES = True, then don't need INDEX_PATH = "blog"
+# Ian - if DISABLE_INDEXES = True, then don't need INDEX_PATH = "blog" ???
 # DISABLE_INDEXES = False
 # DISABLE_MAIN_ATOM_FEED = False
 # DISABLE_MAIN_RSS_FEED = False
