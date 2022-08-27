@@ -149,55 +149,74 @@ TRANSLATIONS_PATTERN = '{path}.{lang}.{ext}'
 #    ),
 #}
 #
-# Ian - Note that folder must match the filename without the .md or .rst.
-# E.g. /agm-minutes/ needs the file agm-minutes.md or agm-minutes-rst
+# Ian - Note that folder must match the filename without the .md or .rst or.html
+# E.g. /society/ needs the file society.md or society.rst or society.html
+# Use NAVIGATION_ALT_LINKS as it places navigation to the R.H.S.
 """
 NAVIGATION_LINKS = {
     DEFAULT_LANG: (
-        ("/index.html", "Home"),        
-        ("/agm-minutes/", "Minuted Meetings"),
-        ("/about-us/", "About Us"),
+        ("/index.html", "Home"),
+        ('/society/', 'Society'),
+        ("/contact/", "Contact"),
     ),
 }
 """
-# Oct 28, 2018, 12:07:40 AM
-# 3 independent instances are unnecessary. You will probably need a
-# custom navigation setup that doesn't use NAVIGATION_LINKS as is (3
-# templates + 3 menu variables in global context?) Chris Warrick <https://chriswarrick.com/> 
-#
-# This will give a drop down from "Steps" on the navigation bar. 
-# With selection of the different steps.
-#        (
-#            (
-#                ('/steps/', 'Overview of Steps'),
-#                ('/step1/', '1. PythonAnywhere Account'),
-#                ('/step2/', '2. Nikola Installation'),
-#                ('/step3/', '3. Creating a Website'),
-#            ),
-#            '<strong>Steps</strong>'
-#        ), 
-#
+
 # Alternative navigation links. Works the same way NAVIGATION_LINKS does,
 # although themes may not always support them. (translatable)
 # (Bootstrap 4: right-side of navbar, Bootblog 4: right side of title)
 # Ian 2022-08-26 - but not vertically aligned.
-
 NAVIGATION_ALT_LINKS = {
     DEFAULT_LANG: (
         ("/index.html", "Home"),
-        (
-            (
-                ('/agm-overview/', 'AGM Overview'),
-                ('/2002-agm/', '2002 AGM'),
-                ('/2003-agm/', '2003 AGM'),                
-            ),
-            '<strong>AGM Minutes</strong>'            
-        ),
-        ("/about-us/", "About Us"),        
+        ('/society/', 'Society'),
+        ("/contact/", "Contact"),       
     )
 }
+"""
+# If drop-down menu from the navigation bar is desired... 
+        (
+            (
+                ('/agm-overview/', 'Meetings Overview'),
+                ('/meeting/2021-agm/', '2021 AGM'),
+                ('/meeting/2020-agm/', '2020 AGM'),
+                ('/meeting/2019-sgm-mar/', '2019 SGM March'),
+                ('/meeting/2019-sgm-feb/', '2019 SGM February'),
+                ('/meeting/2019-agm/', '2019 AGM'),                
+                ('/meeting/2018-agm/', '2018 AGM'),
+                ('/meeting/2017-sgm-jan/', '2017 SGM January'),
+                ('/meeting/2017-agm/', '2017 AGM'),
+                ('/meeting/2016-agm/', '2016 AGM'),
+                ('/meeting/2015-agm/', '2015 AGM'),
+                ('/meeting/2014-agm/', '2014 AGM'),
+                ('/meeting/2013-agm/', '2013 AGM'),                
+                ('/meeting/2012-agm-2nd/', '2012 AGM 2nd'),      
+                ('/meeting/2012-agm-1st/', '2012 AGM 1st'), 
+                ('/meeting/2011-agm/', '2011 AGM'), 
+                ('/meeting/2010-agm/', '2010 AGM'), 
+                ('/meeting/2009-agm/', '2009 AGM'),  
+                ('/meeting/2008-agm/', '2008 AGM'),  
+                ('/meeting/2007-agm/', '2007 AGM'),
+                ('/meeting/2006-agm/', '2006 AGM'),
+                ('/meeting/2005-agm/', '2005 AGM'),
+                ('/meeting/2004-agm/', '2004 AGM'),
+                ('/meeting/2003-agm/', '2003 AGM'),               
+                ('/meeting/2002-agm/', '2002 AGM'),
+            ),
+            '<strong>Meetings</strong>'            
+        ),
+        (
+            (
+                ("/society/society-overview/", "Overview"),
+                ("/society/certificate-of-incorporation/", "Certificate of Incorporation"),
+                ("/society/extract-of-incorporated-society/", "Extract of Incorporated Society"),
+                ("/society/charter/", "Charter"),
+                                
+            ),
+            '<strong>Society</strong>'    
+        ),
 
-
+"""
 # Name of the theme to use.
 # Ian 2022-08-26
 #THEME = "bootblog4"
@@ -234,17 +253,23 @@ THEME_CONFIG = {
     }
 }
 # Config for bootstrap4:
-# THEME_CONFIG = {
-#     DEFAULT_LANG: {
-#         # Use a light navbar with dark text. Defaults to False.
-#         'navbar_light': False,
-#         # Use a custom navbar color. If unset, 'navbar_light' sets text +
-#         # background color. If set, navbar_light controls only background
-#         # color. Supported values: bg-dark, bg-light, bg-primary, bg-secondary,
-#         # bg-success, bg-danger, bg-warning, bg-info, bg-white, bg-transparent.
-#         'navbar_custom_bg': '',
-#     }
-# }
+THEME_CONFIG = {
+    DEFAULT_LANG: {
+        # Use a light navbar with dark text. Defaults to False.
+        'navbar_light': True,
+        # Use a custom navbar color. If unset, 'navbar_light' sets text +
+        # background color. If set, navbar_light controls only background
+        # color. Supported values: bg-dark, bg-light, bg-primary, bg-secondary,
+        # bg-success, bg-danger, bg-warning, bg-info, bg-white, bg-transparent.
+        # Ian 2022-08-27
+        # bg-dark - black (default?), bg-light - white,
+        # bg-primary - blue, bg-secondary - grey, 
+        # bg-success - green, bg-danger -red, bg-warning -yellow,
+        # bg-info - cyan , bg-white - white,  bg-transparent - remains white.
+        # Unable to add a colour, e.g.  '#ffc0cb' fails
+        'navbar_custom_bg': 'bg-light'
+    }
+}
 
 # POSTS and PAGES contains (wildcard, destination, template) tuples.
 # (translatable)
@@ -338,8 +363,10 @@ TIMEZONE = "Pacific/Auckland"
 
 # Customize the locale/region used for a language.
 # For example, to use British instead of US English: LOCALES = {'en': 'en_GB'}
+# Ian 2022-08-27
 # LOCALES = {}
-
+LOCALES = {'en': 'en_GB'}
+#
 # One or more folders containing files to be copied as-is into the output.
 # The format is a dictionary of {source: relative destination}.
 # Default is:
@@ -418,8 +445,8 @@ METADATA_FORMAT = "Pelican"
 # The URL may be relative to the site root.
 # Ian 2022-08-26
 # LOGO_URL = ''
-LOGO_URL = "/images/penguin_head_left_40x44.png" 
-#
+#LOGO_URL = "/images/penguin_head_left_40x44.png" 
+LOGO_URL = "/images/wlug-200x60.png"
 # When linking posts to social media, Nikola provides Open Graph metadata
 # which is used to show a nice preview. This includes an image preview
 # taken from the post's previewimage metadata field.
@@ -432,7 +459,7 @@ LOGO_URL = "/images/penguin_head_left_40x44.png"
 # already contains the text), set this to False.
 # Note: if your logo is a SVG image, and you set SHOW_BLOG_TITLE = False,
 # you should explicitly set a height for #logo in CSS.
-# SHOW_BLOG_TITLE = True
+SHOW_BLOG_TITLE = False
 
 # Paths for different autogenerated bits. These are combined with the
 # translation paths.
@@ -1243,9 +1270,10 @@ MARKDOWN_EXTENSIONS = ['markdown.extensions.fenced_code', 'markdown.extensions.c
 # <script src="https://s7.addthis.com/js/300/addthis_widget.js#pubid=ra-4f7088a56bb93798"></script>
 # <!-- End of social buttons -->
 # """
-
 # Show link to source for the posts?
+# Ian 2022-08-27 change from True to False to remove "Source" from the navigation bar.
 # SHOW_SOURCELINK = True
+SHOW_SOURCELINK = False
 # Copy the source files for your pages?
 # Setting it to False implies SHOW_SOURCELINK = False
 # COPY_SOURCES = True
@@ -1341,7 +1369,7 @@ USE_CDN = True
 # before </head>
 # (translatable)
 # Ian 2022-08-26 Doesn't support variables, E.g. {date}
-EXTRA_HEAD_DATA = "Incorporated Society {date}"
+# EXTRA_HEAD_DATA = "Incorporated Society {date}"
 # Google Analytics or whatever else you use. Added to the bottom of <body>
 # in the default template (base.tmpl).
 # (translatable)
