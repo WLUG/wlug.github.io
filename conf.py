@@ -156,7 +156,12 @@ TRANSLATIONS_PATTERN = '{path}.{lang}.{ext}'
 NAVIGATION_LINKS = {
     DEFAULT_LANG: (
         ("/index.html", "Home"),
+        ('/meetings/', 'Meetings'),   
+        ('/mail/', 'Mailing List'),
+        ('/join/', 'Join'),
+        ('/repository/', 'Repository'),                             
         ('/society/', 'Society'),
+        ('/history/', 'History'),        
         ("/contact/", "Contact"),
     ),
 }
@@ -169,7 +174,12 @@ NAVIGATION_LINKS = {
 NAVIGATION_ALT_LINKS = {
     DEFAULT_LANG: (
         ("/index.html", "Home"),
+        ('/meetings/', 'Meetings'), 
+        ('/mail/', 'Mailing List'),
+        ('/join/', 'Join'), 
+        ('/repository/', 'Repository'),                              
         ('/society/', 'Society'),
+        ('/history/', 'History'),        
         ("/contact/", "Contact"),       
     )
 }
@@ -369,8 +379,10 @@ LOCALES = {'en': 'en_GB'}
 #
 # One or more folders containing files to be copied as-is into the output.
 # The format is a dictionary of {source: relative destination}.
+# Ian 2022-08-26 for downloading pdf files. Ensure pdf file is copied to output 
 # Default is:
 # FILES_FOLDERS = {'files': ''}
+FILES_FOLDERS = {'files': 'files'}
 # Which means copy 'files' into 'output'
 
 # One or more folders containing code listings to be processed and published on
