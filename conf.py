@@ -1035,6 +1035,7 @@ IMAGE_FOLDERS = {'images': 'images'}
 # CODE_COLOR_SCHEME = 'default'
 #
 # Ian 2022-08-26
+# Clear Browser cache when changing
 # FAVICONS contains (name, file, size) tuples.
 # Used to create favicon link like this:
 # <link rel="name" href="file" sizes="size"/>
@@ -1042,11 +1043,16 @@ IMAGE_FOLDERS = {'images': 'images'}
 #     ("icon", "/favicon.ico", "16x16"),
 #     ("icon", "/icon_128x128.png", "128x128"),
 # )
+#FAVICONS = (
+#     ("icon", "/images/penguin_head_left_22x24.png", "24x24"),
+#)
+#FAVICONS = (
+#     ("icon", "/images/linux_penguin_head_24x24_2.png", "24x24"),
+#)
+#
 FAVICONS = (
-     ("icon", "/images/penguin_head_left_22x24.png", "24x24"),
+     ("icon", "/images/linux_penguin_head_24x24_4.png", "24x24"),
 )
-
-
 # Show teasers (instead of full posts) in indexes? Defaults to False.
 # INDEX_TEASERS = False
 
