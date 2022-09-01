@@ -326,6 +326,7 @@ POSTS = () #= (
 # Ian 2022-08-25
 # Change from: "pages/*.rst", "pages", "page.tmpl" to:"pages/*.rst", "", "page.tmpl"
 # Also see line 589 regarding INDEX_PATH = blog
+# (pages/root/*.md, "", "page.tmpl")   or..   ("pages/root/*.md", "", "page.tmpl"),
 PAGES = (
     ("pages/*.rst", "", "page.tmpl"),
     ("pages/*.md", "", "page.tmpl"),
@@ -1035,9 +1036,7 @@ IMAGE_FOLDERS = {'images': 'images'}
 # This list MAY be incomplete since pygments adds styles every now and then.
 # Check with list(pygments.styles.get_all_styles()) in an interpreter.
 #
-# Ian trying to fix no custom.css
 # CODE_COLOR_SCHEME = 'default'
-CODE_COLOR_SCHEME = None
 #
 # Ian 2022-08-26
 # Clear Browser cache when changing
@@ -1092,6 +1091,17 @@ FEED_LINKS_APPEND_QUERY = False
 # A HTML fragment describing the license, for the sidebar.
 # (translatable)
 #
+# Ian 2022-08-31 - Get Nikola Version and add it to the footer. Then can see what version github uses
+# Probably don't need the try/except
+NIKOLA_VERSION = ""
+PYTHON_VERSION = ""
+try:
+    from nikola import __version__ as NIKOLA_VERSION
+    from sys import version as PYTHON_VERSION
+    PYTHON_VERSION = PYTHON_VERSION.split(" ")[0]
+except  Exception as e:
+    print("Error obtaining version:", e)
+  
 # Ian 2022-08-26 - Add a license in the footer
 #LICENSE = ""
 # I recommend using the Creative Commons' wizard:
@@ -1107,8 +1117,9 @@ LICENSE = """
 # (translatable)
 # Edited by Ian 2022-08-26
 #CONTENT_FOOTER = 'Contents &copy; {date}         <a href="mailto:{email}">{author}</a> - Powered by         <a #href="https://getnikola.com" rel="nofollow">Nikola</a>         {license}'
-# Ian - Place in BODY_END
-CONTENT_FOOTER = 'WLUG &copy; {date} - Powered by <a href="https://getnikola.com" #rel="nofollow">Nikola</a>   {license}'
+# Ian 2022-08-26 - Place in BODY_END - didn't work no {variables}
+# Ian 2022-08-31 - Add version to footer.
+CONTENT_FOOTER = 'WLUG &copy; {date} - Powered by <a href="https://getnikola.com" #rel="nofollow">Nikola {nikola_version}</a> using <a href="https://www.python.org/" #rel="nofollow">Python {python_version}</a>  {license}'
 #
 # Things that will be passed to CONTENT_FOOTER.format().  This is done
 # for translatability, as dicts are not formattable.  Nikola will
@@ -1123,6 +1134,7 @@ CONTENT_FOOTER = 'WLUG &copy; {date} - Powered by <a href="https://getnikola.com
 #          still needs to be a dict of this format.  (it can be empty if you
 #          do not need formatting)
 # (translatable)
+# ian 2022-08-31 - Add "version": NIKOLA_VERSION for the footer. Can see what version github uses
 CONTENT_FOOTER_FORMATS = {
     DEFAULT_LANG: (
         (),
@@ -1130,7 +1142,9 @@ CONTENT_FOOTER_FORMATS = {
             "email": BLOG_EMAIL,
             "author": BLOG_AUTHOR,
             "date": time.gmtime().tm_year,
-            "license": LICENSE
+            "license": LICENSE,
+            "nikola_version": NIKOLA_VERSION,
+            "python_version": PYTHON_VERSION,            
         }
     )
 }
@@ -1549,4 +1563,4 @@ GLOBAL_CONTEXT = {}
 # Add functions here and they will be called with template
 # GLOBAL_CONTEXT as parameter when the template is about to be
 # rendered
-GLOBAL_CONTEXT_FILLER = []
+GLOBAL_CONTEXT_FILLER = []  
