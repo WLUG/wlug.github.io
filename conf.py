@@ -266,7 +266,8 @@ THEME_CONFIG = {
 THEME_CONFIG = {
     DEFAULT_LANG: {
         # Use a light navbar with dark text. Defaults to False.
-        'navbar_light': True,
+        #'navbar_light': True,
+        'navbar_light': False,        
         # Use a custom navbar color. If unset, 'navbar_light' sets text +
         # background color. If set, navbar_light controls only background
         # color. Supported values: bg-dark, bg-light, bg-primary, bg-secondary,
@@ -277,9 +278,13 @@ THEME_CONFIG = {
         # bg-success - green, bg-danger -red, bg-warning -yellow,
         # bg-info - cyan , bg-white - white,  bg-transparent - remains white.
         # Unable to add a colour, e.g.  '#ffc0cb' fails
-        'navbar_custom_bg': 'bg-light'
+        #'navbar_custom_bg': 'bg-light'
+        #'navbar_custom_bg': 'bg-primary'  
+        'navbar_custom_bg': 'bg-info'         
+        #'navbar_custom_bg': 'bg-dark'            
     }
 }
+
 
 # POSTS and PAGES contains (wildcard, destination, template) tuples.
 # (translatable)
