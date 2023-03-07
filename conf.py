@@ -188,6 +188,8 @@ NAVIGATION_ALT_LINKS = {
         (
             (
                 ('/agm-overview/', 'Meetings Overview'),
+                ('/meeting/2022-agm-feb/', '2022 AGM February'),
+                ('/meeting/2022-agm-jan/', '2022 AGM January'),
                 ('/meeting/2021-agm/', '2021 AGM'),
                 ('/meeting/2020-agm/', '2020 AGM'),
                 ('/meeting/2019-sgm-mar/', '2019 SGM March'),

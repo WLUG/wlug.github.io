@@ -65,6 +65,8 @@ Click to download the WLUG Charter as a pdf file:
 
 A registed society is required to have Annual General Meetings (AGM) and may have Special General Meetings (SGM). These are the minutes of these meetings:
 
+* [2022 AGM February](/agm/2022-agm-feb/)
+* [2022 AGM January](/agm/2022-agm-jan/) 
 * [2021 AGM](/agm/2021-agm/) 
 * [2020 AGM](/agm/2020-agm/) 
 * [2019 SGM March](/agm/2019-sgm-mar/) 
