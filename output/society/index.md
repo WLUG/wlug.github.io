@@ -61,6 +61,10 @@ Click to download the WLUG Charter as a pdf file:
 <button type="button">Download</button>
 </a>
 
+### Code of Conduct
+
+WLUG apply this [Code of Conduct](/charter/code-of-conduct/)
+
 ### Minutes of Annual General Meetings
 
 A registed society is required to have Annual General Meetings (AGM) and may have Special General Meetings (SGM). These are the minutes of these meetings:

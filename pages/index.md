@@ -9,7 +9,7 @@
 .. hidetitle: true
 
 <!---
-Draft completed: 2022-Aug-29 Ian Stewart
+Draft Website completed: 2022-Aug-29 Ian Stewart
 Updated: 2023-03-07 Added status of Society having been dissolved. Ian Stewart
 -->
 
@@ -32,7 +32,7 @@ Welcome to the **Waikato Linux Users Group (WLUG)**. We are based in Hamilton, N
 
 Although our group originally focused on the Linux operating system, our focus has broadened to encompass all [Open Source Software](https://en.wikipedia.org/wiki/Open-source_software).
 
-We have monthly meetings where we present a topic and afterward have topical discussions. We'd like to welcome you along to our meetings. For more information please see [Meetings](/meetings/).
+We have monthly meetings where we present a topic and afterward have topical discussions. We'd like to welcome you along to our meetings. For more information please see [Meetings](/meeting/).
 
 We are an Incorporated Society. If you like become a member, then please apply at [Join](/join/).
 

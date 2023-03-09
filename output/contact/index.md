@@ -9,7 +9,7 @@ type: text
 hidetitle: true
 <!---
 Draft completed: 2022-08-27 Ian Stewart
-
+Updated: 2023-03-09 Remove president details.
 -->
 
 # Contact WLUG
@@ -40,9 +40,9 @@ Please write to:
 
 If you have questions regarding WLUG that you do not want to post to the mailing list, then please contact:
 
-    Peter Reutemann
-    work ph: 07 858 5174
-    work email: fracpete at waikato dot ac dot nz
+    Xxxx  Yxxx
+    work ph:
+    work email:
 
 
 

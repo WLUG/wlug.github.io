@@ -156,7 +156,7 @@ TRANSLATIONS_PATTERN = '{path}.{lang}.{ext}'
 NAVIGATION_LINKS = {
     DEFAULT_LANG: (
         ("/index.html", "Home"),
-        ('/meetings/', 'Meetings'),   
+        ('/meeting/', 'Meetings'),   
         ('/mail/', 'Mailing List'),
         ('/join/', 'Join'),
         ('/repository/', 'Repository'),                             
@@ -174,7 +174,7 @@ NAVIGATION_LINKS = {
 NAVIGATION_ALT_LINKS = {
     DEFAULT_LANG: (
         ("/index.html", "Home"),
-        ('/meetings/', 'Meetings'), 
+        ('/meeting/', 'Meetings'), 
         ('/mail/', 'Mailing List'),
         ('/join/', 'Join'), 
         ('/repository/', 'Repository'),                              

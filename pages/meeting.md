@@ -1,5 +1,5 @@
 title: Meetings
-slug: meetings
+slug: meeting
 date: 2022-08-26 12:02:45 UTC+12:00
 tags: 
 category: 
