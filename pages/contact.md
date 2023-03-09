@@ -40,7 +40,7 @@ Please write to:
 
 If you have questions regarding WLUG that you do not want to post to the mailing list, then please contact:
 
-    Xxxx  Yxxx
+    Axxxxx  Bxxxxx
     work ph:
     work email:
 
