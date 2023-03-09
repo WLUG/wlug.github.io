@@ -9,13 +9,12 @@ type: text
 hidetitle: true
 <!---
 Draft completed: 2022-08-28 Ian Stewart
+Notes: 
+1.  Privacy Act 1993 https://dpmc.govt.nz/our-business-units/cabinet-office/supporting-work-cabinet/cabinet-manual/8-official-information-3
 
-TODO: 
-1. Get Treasurers email address off Peter.
-2. formspree.io New Member Form goes to irsbugs@hotmail.com
-3.  Privacy Act 1993 https://dpmc.govt.nz/our-business-units/cabinet-office/supporting-work-cabinet/cabinet-manual/8-official-information-3
+2. 2020 Principles https://www.legislation.govt.nz/act/public/2020/0031/latest/LMS23342.html
 
-2020 Principles https://www.legislation.govt.nz/act/public/2020/0031/latest/LMS23342.html
+Updated 2023-03-09 Changed FormSpree link to Exmple.com. Ian.
 -->
 
 # Membership of WLUG
@@ -86,6 +85,7 @@ access the information held about you and to request correction.
 
 <!-- Remove form action sending to formspree website. Ian 2023-03-07 
 <form action="https://formspree.io/f/myyvzbjv" method="POST">
+Send to example.com...
 -->
 <form action="http://www.example.com" method="POST">
 
