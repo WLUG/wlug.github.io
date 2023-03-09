@@ -7,6 +7,8 @@ jobs:
     steps:
     - name: Check out
       uses: actions/checkout@v3
+      with:
+        path: main
     - name: Build and Deploy Nikola
       uses: getnikola/nikola-action@v8
       with:
@@ -15,4 +17,6 @@ jobs:
 # Setup by Ian 2023-03-09
 # See: https://github.com/getnikola/nikola-action
 # was: actions/checkout@v3
-# was: getnikola/nikola-action@v4        
+# was: getnikola/nikola-action@v4    
+# Add with:
+#    path: main
