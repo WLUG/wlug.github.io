@@ -7,6 +7,8 @@ jobs:
     steps:
     - name: Check out
       uses: actions/checkout@v3
+      with:
+        set-safe-directory: '*'      
     - name: Build and Deploy Nikola
       uses: getnikola/nikola-action@v8
       with:
@@ -20,3 +22,7 @@ jobs:
 # -name: Check out
 # Add with:
 #    path: main
+# 2023-03-20 added
+#      with:
+#        set-safe-directory: '*'
+#        
