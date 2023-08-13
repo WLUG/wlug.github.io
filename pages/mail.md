@@ -19,6 +19,6 @@ Having problems with your Linux computer or stuck with a problem? Or did you com
 It is free to [sign up](https://list.waikato.ac.nz/postorius/lists/wlug.list.waikato.ac.nz/).
 
 
-The WLUG mailing list services are provided by The Waikato of University.
+The WLUG mailing list services are provided by The University of Waikato.
 
 
