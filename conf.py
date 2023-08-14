@@ -387,11 +387,13 @@ LOCALES = {'en': 'en_GB'}
 #
 # One or more folders containing files to be copied as-is into the output.
 # The format is a dictionary of {source: relative destination}.
-# Ian 2022-08-26 for downloading pdf files. Ensure pdf file is copied to output 
+# Ian 2022-08-26 for downloading pdf files. Ensure pdf file is copied to output
 # Ian 2022-08-31 - Ensure customs.css is moved from 'themes/assets/css/ to output/assets/css
 # Default is:
 # FILES_FOLDERS = {'files': ''}
-FILES_FOLDERS = {'files': 'files', 'themes/assets/css/': 'assets/css/'}
+# Ian 2023-08-15 As files/CNAME file must output to root directory, then {'files': ''} 
+# FILES_FOLDERS = {'files': 'files', 'themes/assets/css/': 'assets/css/'}
+FILES_FOLDERS = {'files': '', 'themes/assets/css/': 'assets/css/'}
 # Which means copy 'files' into 'output'
 # One or more folders containing code listings to be processed and published on
 # the site. The format is a dictionary of {source: relative destination}.
