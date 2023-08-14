@@ -29,20 +29,12 @@ We have a mailing list that you may use send out an e-mail to our Open Source So
 Please write to:
 
     Waikato Linux Users Group Inc.
-    C/- Faculty of Computing and Mathematical Sciences
-    The University of Waikato
-    Private Bag 3105
-    Hamilton 3240
-    New Zealand
-
 
 ## Direct contact with the President of WLUG
 
 If you have questions regarding WLUG that you do not want to post to the mailing list, then please contact:
 
-    Abbbbb  Bccccccc
-    work ph:
-    work email:
+    The President
 
 
 
