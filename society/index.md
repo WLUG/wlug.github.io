@@ -57,7 +57,7 @@ A registered society is required to have a Charter:
 [WLUG Charter - 25 March 2019](/charter/charter/)
 
 Click to download the WLUG Charter as a pdf file: 
-<a href="/files/WLUG Charter - 25 Mar 2019.pdf" download>
+<a href="/WLUG Charter - 25 Mar 2019.pdf" download>
 <button type="button">Download</button>
 </a>
 
