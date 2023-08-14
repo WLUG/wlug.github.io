@@ -52,8 +52,9 @@ We are grateful for sponsorship from:
 * [RimuHosting](https://rimuhosting.com/).
 * New Zealand Open Source Society [NZOSS](https://nzoss.nz/).
 
+<!---
 You may wish to follow us in Twitter
-<a href="https://twitter.com/WaikatoLUG"><img alt="Twitter" src="/images/twitter.png" width=40"></a>
+<a href="https://twitter.com/WaikatoLUG"><img alt="Twitter" src="/images/twitter.png" width=40"></a> -->
 <!--- Note: html can also have Height. E.g. width=40 height=40 -->
  
 Plus you can go to our YouTube channel and look at past presentations that we've recorded
