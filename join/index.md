@@ -28,9 +28,7 @@ Membership contributes to the running costs of all sorts of things that the grou
 Membership is currently set at $10 per year for an individual. Membership currently lasts from the time of payment until the next Annual General Meeting. Pro rata subscriptions are not offered. We don’t offer a family membership per se as meetings are free and everyone is encouraged to attend, but you are welcome to make a suggested donation of $20 per year for a family.
 
 
-If you are already a member, you can simply extend your membership by paying the membership via online banking:
-
-ASB, Waikato Linux Users Group Incorporated, 12-3122-0223054-00 (please include your name in the payment details)
+If you are already a member, you can simply extend your membership by paying the membership via online banking.
 
 Be aware that when you pay online, we will not be able to give you confirmation of your payment until we have checked the banks transactions report.
 
