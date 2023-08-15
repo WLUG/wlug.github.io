@@ -15,6 +15,8 @@ Notes:
 2. 2020 Principles https://www.legislation.govt.nz/act/public/2020/0031/latest/LMS23342.html
 
 Updated 2023-03-09 Changed FormSpree link to Exmple.com. Ian.
+
+2023-08-15 - Ian - Remove details of ASB account
 -->
 
 # Membership of WLUG
@@ -128,9 +130,9 @@ Send to example.com...
 
 * Pay your annual membership by bank transfer to: 
 
-    * Bank: ASB 
-    * Account Name: Waikato Linux Users Group Incorporated
-    * Account Number: 12-3122-0223054-00
+    * Bank:
+    * Account Name: 
+    * Account Number:
     
     * Note: Please include your name in the banks account transfer fields.
 
