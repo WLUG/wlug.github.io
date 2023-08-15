@@ -9,7 +9,7 @@ type: text
 hidetitle: true
 <!---
 Draft completed: 2022-08-27 - Ian Stewart
-
+2023-08-15 - Ian - Remove Meetup link.
 -->
 
 # Meetings
@@ -33,12 +33,12 @@ Each year we have our Annual General Meeting. This is held on the 4th Monday of 
 
 ## Announcement of Meetings
 
-We use the [meetup.com](https://www.meetup.com/WaikatoLinuxUsersGroup/) website to publish each month the topic to be presented. This website will also include the link to the Big Blue Button (BBB) video conferencing facility for on-line attendance. You need to register with meetup.com to be able to view the meeting information. There is no charge to register with meetup.com, but you will be subjected to their marketing e-mails about once a week. 
+We use the **meetup.com** website to publish each month the topic to be presented. This website will also include the link to the Big Blue Button (BBB) video conferencing facility for on-line attendance. You need to register with meetup.com to be able to view the meeting information. There is no charge to register with meetup.com, but you will be subjected to their marketing e-mails about once a week. 
 
 
 ## On-Line Attendance
 
-Most of the presentations at our meetings are now broadcast live on-line. We use the [Big Blue Button](https://bbb2.nzoss.nz/b/) (BBB) video-conferencing application that is hosted by the [NZ Open Source Society](https://nzoss.nz/). If you are unable to attend in-person to a meeting, then you are welcome to join on-line. All you need is for your computer to run a browser. E.g. Firefox, and you get the link for the meeting from [WLUG meetup.com](https://www.meetup.com/WaikatoLinuxUsersGroup/)
+Most of the presentations at our meetings are now broadcast live on-line. We use the [Big Blue Button](https://bbb2.nzoss.nz/b/) (BBB) video-conferencing application that is hosted by the [NZ Open Source Society](https://nzoss.nz/). If you are unable to attend in-person to a meeting, then you are welcome to join on-line. All you need is for your computer to run a browser.
 
 **Please note:**
 
