@@ -136,7 +136,7 @@ Send to example.com...
     
     * Note: Please include your name in the banks account transfer fields.
 
-* Register with [meetup.com](https://www.meetup.com/WaikatoLinuxUsersGroup/) so that you can check for information about the next meeting or get the BBB link if attending on-line.
+* Register with **meetup.com** so that you can check for information about the next meeting or get the BBB link if attending on-line.
 
 * Join the WLUG [mailing list](/mail/)
 
