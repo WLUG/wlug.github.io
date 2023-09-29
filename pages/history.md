@@ -33,7 +33,7 @@ GitHub also provide web-hosting service and this WLUG website is accessed via [h
 
 Using a [CNAME record](https://en.wikipedia.org/wiki/CNAME_record) the DNS is able to map **www.wlug.org.nz** to **wlug.github.io**. Users connecting to [https://www.wlug.org.nz](https://www.wlug.org.nz) will be unaware that they are connected to a GitHub hosted website.
 
-Another feature of GitHub is that using a browser a change may be made to the website source code. For example a change of phone number. Upon committing the change, GitHub will run the Nikola updating process. After a few minutes the web-site will be updated. This is done by the [workflow yaml code](https://getnikola.com/blog/automating-nikola-rebuilds-with-github-actions.html) in the src branch file .github/workflows/main.yml. x
+Another feature of GitHub is that using a browser a change may be made to the website source code. For example a change of phone number. Upon committing the change, GitHub will run the Nikola updating process. After a few minutes the web-site will be updated. This is done by the [workflow yaml code](https://getnikola.com/blog/automating-nikola-rebuilds-with-github-actions.html) in the src branch file .github/workflows/main.yml.
  
             
 
