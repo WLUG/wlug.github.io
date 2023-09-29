@@ -174,7 +174,6 @@ NAVIGATION_LINKS = {
 NAVIGATION_ALT_LINKS = {
     DEFAULT_LANG: (
         ("/index.html", "Home"),
-        ('https://wiki.wlug.org.nz', 'Wiki'),
         ('/meeting/', 'Meetings'), 
         ('/mail/', 'Mailing List'),
         ('/join/', 'Join'), 
