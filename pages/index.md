@@ -34,7 +34,7 @@ Although our group originally focused on the Linux operating system, our focus h
 
 We have monthly meetings where we present a topic and afterward have topical discussions. We'd like to welcome you along to our meetings. For more information please see [Meetings](/meeting/).
 
-We are an Incorporated Society. If you like become a member, then please apply at [Join](/join/).
+Membership is now paused, but please get in contact if you are interested. [Join](/join/).
 
 For more details about our [Society](/society/).
 
