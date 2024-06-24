@@ -17,10 +17,11 @@ Updated: 2023-03-07 Added status of Society having been dissolved. Ian Stewart
 
 <!--Add http to announce Status of WLUG. Ian 2023-03-07: Use colours #386e7b white. warning gives red border
 <div class="warning" style='padding:0.1em; background-color:#386e7b; color:white; border-radius: 10px;'> -->
-<div class="warning" style='padding:0.1em; background-color:red; color:black; border-radius: 10px;'> 
+<!-- Changed Warning to have red background as someone turned up trying to go to a meeting - Ian 2024-06-25 -->
+<div class="warning" style='padding:0.1em; background-color:red; color:white; border-radius: 10px;'> 
 <span>
 <p style='margin-top:1em; text-align:center'>
-<b>Status of the Waikato Linux Users Group.</b></p>
+<b>Status of the Waikato Linux Users Group: DISSOLVED</b></p>
 <p style='margin-left:1em;'>
 The Waikato Linux Users Group Incorporated operated for over 20 years. At the 2022 Annual General Meeting it was agreed to dissolve this incorporated society.<br><br>
 This <i>Nikola</i> generated website has been kept as an historical record of wlug.org.nz. The source code of this website may be reviewed at: <a href="https://github.com/wlug/wlug.github.io" target="_blank" style="color: yellow">https://github.com/wlug/wlug.github.io</a>  
