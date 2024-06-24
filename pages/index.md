@@ -20,8 +20,8 @@ Updated: 2023-03-07 Added status of Society having been dissolved. Ian Stewart
 <!-- Changed Warning to have red background as someone turned up trying to go to a meeting - Ian 2024-06-25 -->
 <div class="warning" style='padding:0.1em; background-color:red; color:white; border-radius: 10px;'> 
 <span>
-<p style='margin-top:1em; text-align:center'>
-<b>## Status of the Waikato Linux Users Group: DISSOLVED</b></p>
+<h2 style='margin-top:1em; text-align:center'>
+<b>Status of the Waikato Linux Users Group: DISSOLVED</b></h2>
 <p style='margin-left:1em;'>
 The Waikato Linux Users Group Incorporated operated for over 20 years. At the 2022 Annual General Meeting it was agreed to dissolve this incorporated society.<br><br>
 We no longer have meetings and do not accept registration for membership.<br><br>
