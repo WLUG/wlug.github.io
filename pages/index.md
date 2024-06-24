@@ -21,9 +21,10 @@ Updated: 2023-03-07 Added status of Society having been dissolved. Ian Stewart
 <div class="warning" style='padding:0.1em; background-color:red; color:white; border-radius: 10px;'> 
 <span>
 <p style='margin-top:1em; text-align:center'>
-<b>Status of the Waikato Linux Users Group: DISSOLVED</b></p>
+<b>## Status of the Waikato Linux Users Group: DISSOLVED</b></p>
 <p style='margin-left:1em;'>
 The Waikato Linux Users Group Incorporated operated for over 20 years. At the 2022 Annual General Meeting it was agreed to dissolve this incorporated society.<br><br>
+We no longer have meetings and do not accept registration for membership.<br><br>
 This <i>Nikola</i> generated website has been kept as an historical record of wlug.org.nz. The source code of this website may be reviewed at: <a href="https://github.com/wlug/wlug.github.io" target="_blank" style="color: yellow">https://github.com/wlug/wlug.github.io</a>  
 </p>
 <p style='margin-bottom:1em; margin-right:1em; text-align:right; font-family:Georgia'> <b>23 February 2023</b> 
