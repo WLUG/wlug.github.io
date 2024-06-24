@@ -15,8 +15,9 @@ Updated: 2023-03-07 Added status of Society having been dissolved. Ian Stewart
 
 # Waikato Linux Users Group (WLUG)
 
-<!--Add http to announce Status of WLUG. Ian 2023-03-07: Use colours #386e7b white. warning gives red border -->
-<div class="warning" style='padding:0.1em; background-color:#386e7b; color:white; border-radius: 10px;'>
+<!--Add http to announce Status of WLUG. Ian 2023-03-07: Use colours #386e7b white. warning gives red border
+<div class="warning" style='padding:0.1em; background-color:#386e7b; color:white; border-radius: 10px;'> -->
+<div class="warning" style='padding:0.1em; background-color:red; color:black; border-radius: 10px;'> 
 <span>
 <p style='margin-top:1em; text-align:center'>
 <b>Status of the Waikato Linux Users Group.</b></p>
