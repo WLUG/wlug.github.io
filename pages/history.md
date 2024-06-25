@@ -14,6 +14,19 @@ Draft completed: 2022-08-28 Ian Stewart
 
 # History and General Information
 
+<!-- Add http to announce Dissolving of WLUG. Ian 2024-06-25: Note "Warning" class gives a red border -->
+<!-- Add Warning message to each web-page. -->
+<div class="warning" style='padding:0.1em; background-color:green; color:white; border-radius: 10px;'> 
+<span>
+<h2 style='margin-top:1em; text-align:center'>
+<b>Waikato Linux Users Group was dissolved in February 2023.</b></h2>
+<p style='margin-left:1em;'>
+However, the WLUG Wiki is still accessible.<br><br>
+</p>
+</span>
+</div>
+
+
 ## Wiki
 
 In 2002 WLUG became an incorporated society and at the same time a [Wiki](https://en.wikipedia.org/wiki/Wiki) was set up to aid Linux and Open Source enthusiasts. At the time Daniel Lawson was the president of WLUG. Daniel continues to keep the *WLUG wiki* running on his servers.
