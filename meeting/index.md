@@ -11,7 +11,18 @@ hidetitle: true
 Draft completed: 2022-08-27 - Ian Stewart
 2023-08-15 - Ian - Remove Meetup link.
 -->
-
+<!-- Add http to announce Dissolving of WLUG. Ian 2024-06-25: Note "Warning" class gives a red border -->
+<!-- Add Warning message to each web-page. -->
+<div class="warning" style='padding:0.1em; background-color:red; color:white; border-radius: 10px;'> 
+<span>
+<h2 style='margin-top:1em; text-align:center'>
+<b>Waikato Linux Users Group was dissolved in February 2023.</b></h2>
+<p style='margin-left:1em;'>
+WLUG no longer have monthly meetings.<br><br>
+This web-page is displayed as an historical record.<br>
+</p>
+</span>
+</div>
 # Meetings
 
 WLUG has meetings at 7:30pm on the 4th Monday of the month from January to November.
