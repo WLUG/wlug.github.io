@@ -13,8 +13,19 @@ Draft completed: 2022-08-28 Ian Stewart
 TODO: Long term project: Add Search or provide a list of links to prentations
 
 -->
-
 # GitHub Repository
+
+<!-- Add http to announce Dissolving of WLUG. Ian 2024-06-25: Note "Warning" class gives a red border -->
+<!-- Add Warning message to each web-page. -->
+<div class="warning" style='padding:0.1em; background-color:green; color:white; border-radius: 10px;'> 
+<span>
+<h2 style='margin-top:1em; text-align:center'>
+<b>Waikato Linux Users Group was dissolved in February 2023.</b></h2>
+<p style='margin-left:1em;'>
+However, the WLUG Github Repository is still maintained.<br><br>
+</p>
+</span>
+</div>
 
 Since 2014 WLUG has been using GitHub as a repository.
 
