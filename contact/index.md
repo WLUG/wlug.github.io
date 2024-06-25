@@ -19,7 +19,7 @@ Updated: 2023-03-09 Remove president details.
 <h2 style='margin-top:1em; text-align:center'>
 <b>Waikato Linux Users Group was dissolved in February 2023.</b></h2>
 <p style='margin-left:1em;'>
-WLUG has been removed from the Incorporated Societies Register.<br><br>
+WLUG no longer has Annual General Meetings or Officals and Committee members, etc.<br><br>
 This web-page is displayed as an historical record.<br>
 </p>
 </span>
