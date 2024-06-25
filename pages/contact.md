@@ -12,6 +12,19 @@ Draft completed: 2022-08-27 Ian Stewart
 Updated: 2023-03-09 Remove president details.
 -->
 
+<!-- Add http to announce Dissolving of WLUG. Ian 2024-06-25: Note "Warning" class gives a red border -->
+<!-- Add Warning message to each web-page. -->
+<div class="warning" style='padding:0.1em; background-color:red; color:white; border-radius: 10px;'> 
+<span>
+<h2 style='margin-top:1em; text-align:center'>
+<b>Waikato Linux Users Group was dissolved in February 2023.</b></h2>
+<p style='margin-left:1em;'>
+WLUG has been removed from the Incorporated Societies Register.<br><br>
+This web-page is displayed as an historical record.<br>
+</p>
+</span>
+</div>
+
 # Contact WLUG
 
 ## In-Person
