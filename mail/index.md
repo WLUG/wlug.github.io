@@ -28,7 +28,7 @@ However, the WLUG Mailing List is still maintained and operational.<br><br>
 
 Having problems with your Linux computer or stuck with a problem? Or did you come across an interesting piece of information on Linux or open source software, then feel free to post this to our mailing list. 
 
-It is free to [sign up](https://list.waikato.ac.nz/postorius/lists/wlug.list.waikato.ac.nz/).
+It is free to [sign up](https://list.wlug.org.nz/postorius/lists/wlug.list.wlug.org.nz/).
 
 
 The WLUG mailing list services are provided by The University of Waikato.
