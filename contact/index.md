@@ -29,7 +29,7 @@ This web-page is displayed as an historical record.<br>
 
 ## In-Person
 
-Please come along to one of our monthly meetings. If you want help with issues on your laptop that's running a Linux distro, then bring it along. After the evenings presentation is complete, then we will investigate the problem.
+Please come along to one of our monthly meetings. If you want help with issues on your laptop that's running a Linux distro, then bring it along. After the evenings presentation is complete, then we will investigate the problem...
 
 
 ## By E-Mail
