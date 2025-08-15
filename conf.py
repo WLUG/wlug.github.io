@@ -180,7 +180,16 @@ NAVIGATION_ALT_LINKS = {
         ('/repository/', 'Repository'),                              
         ('/society/', 'Society'),
         ('/history/', 'History'),        
-        ("/contact/", "Contact"),       
+        ("/contact/", "Contact"),
+        (
+            (
+                ('/cpu/intro', 'Introduction'),
+                ('/cpu/intel/', 'Intel CPUs'),
+                ('/cpu/amd/', 'AMD CPUs'),
+                ('/
+            ),
+            'CPUs'
+        ),         
     )
 }
 """
