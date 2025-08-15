@@ -70,12 +70,14 @@ Set the height of the logo...
 b8f0fd = 184 240 253 a lighter version of 126,180,183*/
 .nav-link, .dropdown-item {
     color: #b8f0fd !important;
+    background-color: #386e7b !important;
     font-size: 120%;
 }
 
 /* Colour of the text on the navigation bar when hover and drop-down*/
 .nav-link:hover, .dropdown-item:hover {
     color: white !important;
+    background-color: #386e7b !important;
 }
 
 /*
