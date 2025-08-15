@@ -186,7 +186,6 @@ NAVIGATION_ALT_LINKS = {
                 ('/cpu/intro', 'Introduction'),
                 ('/cpu/intel/', 'Intel CPUs'),
                 ('/cpu/amd/', 'AMD CPUs'),
-                ('/
             ),
             'CPUs'
         ),         
