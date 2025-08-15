@@ -12,7 +12,7 @@
 
 TBA
 
-* Link to [Intel](intel.md)
-* Link to [AMD](amd.md)
+* Link to [Intel](./intel)
+* Link to [AMD](./amd)
 
 Ian - 2025-08-15
