@@ -16,7 +16,7 @@ Return to [Introduction](../intro)
 
 This is a list of AMD CPU models that are not supported by Windows 11 24H2.
 
-They have prevously been supported on either the five Windows 10 releases or the previous two Windows 11 releases since 2000.
+They have prevously been supported on either the five Windows 10 releases since 2000, or the previous two Windows 11 releases.
 
 * 1200
 * 1300
