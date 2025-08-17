@@ -12,7 +12,12 @@
 
 TBA
 
-* Link to [Intel](../intel)
+
+* Link to [Intel](../intel) This is in the web-site but page width is lost. Multiple character heights per row due to compressing width of table.
+
+* Link to [Intel](../../intel_cpu_table.html) This is full screen outside of the web-site. One character height per row.
+
+
 * Link to [AMD](../amd)
 
 Ian - 2025-08-15
