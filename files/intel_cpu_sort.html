@@ -1,0 +1,899 @@
+<!DOCTYPE html>
+<!--
+    Lawrence D'Oliveiro: Javascript creates dynamic sorting of columns. 
+    Ian Stewart: Captured the CPU data.
+    
+    File: intel_cpu_sort.html
+    2025-08-29
+-->
+<html>
+<head>
+<title>Intel CPUs Unsupported in Windows 11 24H2</title>
+
+<style type="text/css">
+
+    table, tbody > td
+      {
+        border-collapse: collapse;
+      }
+    th, td
+      {
+        border: 1px solid #666666;
+      }
+    thead, th
+      {
+        position : sticky;
+        top : 0;
+        background-color : #e0e0e0;
+      }
+
+    td:hover
+      {
+        background-color: #BBFFBB; font-size: 1.1em;
+      }
+
+    td.c5 /*left*/
+      {
+        text-align: left; font-size: 1.1em;
+        padding-top: 1px; padding-bottom: 1px; padding-left: 5px; padding-right: 5px;
+      }
+    td.c4 /*right*/
+      {
+        text-align: right;
+        padding-top: 8px; padding-bottom: 1px; padding-left: 5px; padding-right: 5px;
+      }
+    td.c3 /*centre*/
+      {
+        text-align: center;
+        padding-top: 8px; padding-bottom: 1px; padding-left: 5px; padding-right: 5px;
+      }
+    td.c2 /*centre bold*/
+      {
+        text-align: center; font-weight:bold;
+        padding-top: 8px; padding-bottom: 1px; padding-left: 5px; padding-right: 5px;
+      }
+    span.c1 /*larger font*/
+      {
+        font-size: 1.2em; color: #000000;
+      }
+
+    tr:nth-child(even)
+      {
+        background-color: #cccccc;
+      }
+    tr:hover
+      {
+        background-color: #DDFFDD;
+      }
+
+</style>
+
+</head>
+<body>
+<a class="btn" href="https://www.wlug.org.nz/cpu/intro/">Introduction</a>
+<h2>Intel CPUs Unsupported in Windows 11 24H2.</h2>
+<p>These CPU's were supported in at least one of twelve releases of Windows 10 since 2015, or in the previous two releases of Windows 11.</p>
+<p>Click on a column header to sort the table based on that column. Refresh the page to restore the table sorted by CPU model number.</p>
+<script>
+"use strict"
+/*
+    The raw data
+*/
+
+const fieldnames = ["CPU Model", "Brand", "Vertical Segment", "Processor Base Frequency", "Max Turbo Frequency", "Cache", "Bus Speed", "Total Cores", "Total Threads", "Memory Types", "Instruction Set", "Lithography", "TDP", "Marketing Status", "Launch Date", "Product Collection"]
+const fieldtypes = ["", "", "", "num+units", "num", "num+units", "num", "num", "num", "", "", "num", "num", "", "qdate", ""]
+const fieldvalues =
+  [
+    ["3-100U", "Core", "Mobile", "", "4.7 GHz", "10 MB", "", "6", "8", "Up to DDR5 …", "64-bit", "Intel 7", "", "Launched", "Q1'24", "(Series 1)"],
+    ["3-100U with IPU", "Core", "Mobile", "", "4.7 GHz", "10 MB", "", "6", "8", "Up to DDR5 …", "64-bit", "Intel 7", "", "Launched", "Q1'24", "(Series 1)"],
+    ["3205U", "Celeron", "Mobile", "1.50 GHz", "", "2 MB", "5 GT/s", "2", "2", "DDR3L 1333/…", "64-bit", "14 nm", "15 W", "Discontinued", "Q1'15", "Celeron 3000"],
+    ["3215U", "Celeron", "Mobile", "1.70 GHz", "", "2 MB", "5 GT/s", "2", "2", "DDR3L 1333/…", "64-bit", "14 nm", "15 W", "Discontinued", "Q2'15", "Celeron 3000"],
+    ["3755U", "Celeron", "Mobile", "1.70 GHz", "", "2 MB", "5 GT/s", "2", "2", "DDR3L 1333/…", "64-bit", "14 nm", "15 W", "Discontinued", "Q1'15", "Celeron 3000"],
+    ["3765U", "Celeron", "Mobile", "1.90 GHz", "", "2 MB", "5 GT/s", "2", "2", "DDR3L 1333/…", "64-bit", "14 nm", "15 W", "Discontinued", "Q2'15", "Celeron 3000"],
+    ["3805U", "Pentium", "Mobile", "1.90 GHz", "", "2 MB", "5 GT/s", "2", "2", "DDR3L 1333/…", "64-bit", "14 nm", "15 W", "Discontinued", "Q1'15", "Pentium 3000"],
+    ["3825U", "Pentium", "Mobile", "1.90 GHz", "", "2 MB", "5 GT/s", "2", "4", "DDR3L 1333/…", "64-bit", "14 nm", "15 W", "Discontinued", "Q1'15", "Pentium 3000"],
+    ["3855U", "Celeron", "Mobile", "1.60 GHz", "", "2 MB", "4 GT/s", "2", "2", "DDR4-1866/2…", "64-bit", "14 nm", "15 W", "Discontinued", "Q4'15", "Celeron 3000"],
+    ["3865U", "Celeron", "Mobile", "1.80 GHz", "", "2 MB", "4 GT/s", "2", "2", "DDR4-2133, …", "64-bit", "14 nm", "15 W", "Discontinued", "Q1'17", "Celeron 3000"],
+    ["3955U", "Celeron", "Mobile", "2.00 GHz", "", "2 MB", "4 GT/s", "2", "2", "DDR4-1866/2…", "64-bit", "14 nm", "15 W", "Launched", "Q4'15", "Celeron 3000"],
+    ["3965U", "Celeron", "Mobile", "2.20 GHz", "", "2 MB", "4 GT/s", "2", "2", "DDR4-2133, …", "64-bit", "14 nm", "15 W", "Launched", "Q1'17", "Celeron 3000"],
+    ["3965Y", "Celeron", "Mobile", "1.50 GHz", "", "2 MB", "4 GT/s", "2", "2", "LPDDR3-1866…", "64-bit", "14 nm", "6 W", "Discontinued", "Q2'17", "Celeron 3000"],
+    ["4405U", "Pentium", "Mobile", "2.10 GHz", "", "2 MB", "4 GT/s", "2", "4", "DDR4-1866/2…", "64-bit", "14 nm", "15 W", "Discontinued", "Q3'15", "Pentium 4000"],
+    ["4405Y", "Pentium", "Mobile", "1.50 GHz", "", "2 MB", "4 GT/s", "2", "4", "LPDDR3-1866…", "64-bit", "14 nm", "6 W", "Discontinued", "Q3'15", "Pentium 4000"],
+    ["5-120U", "Core", "Mobile", "", "5 GHz", "12 MB", "", "10", "12", "Up to DDR5 …", "64-bit", "Intel 7", "", "Launched", "Q1'24", "(Series 1)"],
+    ["7-150U", "Core", "Mobile", "", "5.4 GHz", "12 MB", "", "10", "12", "Up to DDR5 …", "64-bit", "Intel 7", "", "Launched", "Q1'24", "(Series 1)"],
+    ["Bronze 3104", "Xeon", "Server", "1.70 GHz", "", "8.25 MB", "", "6", "6", "DDR4-2133", "", "14 nm", "85 W", "Discontinued", "Q3'17", "Xeon"],
+    ["Bronze 3106", "Xeon", "Server", "1.70 GHz", "", "11 MB", "", "8", "8", "DDR4-2133", "", "14 nm", "85 W", "Launched", "Q3'17", "Xeon"],
+    ["Bronze 3204", "Xeon", "Server", "1.90 GHz", "1.90 GHz", "8.25 MB", "", "6", "6", "DDR4-2133", "", "14 nm", "85 W", "Discontinued", "Q2'19", "2nd Gen Xeon"],
+    ["Bronze 3206R", "Xeon", "Server", "1.90 GHz", "1.90 GHz", "11 MB", "", "8", "8", "DDR4-2133", "", "14 nm", "85 W", "Discontinued", "Q1'20", "2nd Gen Xeon"],
+    ["D-1513N", "Xeon", "Server", "1.60 GHz", "2.20 GHz", "6 MB", "", "4", "8", "DDR4, DDR3", "64-bit", "14 nm", "35 W", "Launched", "Q3'17", "Xeon D"],
+    ["D-1518", "Xeon", "Server", "2.20 GHz", "2.20 GHz", "6 MB", "", "4", "8", "DDR4, DDR3", "64-bit", "14 nm", "35 W", "Discontinued", "Q4'15", "Xeon D"],
+    ["D-1520", "Xeon", "Server", "2.20 GHz", "2.60 GHz", "6 MB", "", "4", "8", "DDR4", "64-bit", "14 nm", "45 W", "Discontinued", "Q1'15", "Xeon D"],
+    ["D-1521", "Xeon", "Server", "2.40 GHz", "2.70 GHz", "6 MB", "", "4", "8", "DDR4, DDR3", "64-bit", "14 nm", "45 W", "Discontinued", "Q4'15", "Xeon D"],
+    ["D-1523N", "Xeon", "Server", "2.00 GHz", "2.60 GHz", "6 MB", "", "4", "8", "DDR4, DDR3", "64-bit", "14 nm", "45 W", "Launched", "Q3'17", "Xeon D"],
+    ["D-1527", "Xeon", "Server", "2.20 GHz", "2.70 GHz", "6 MB", "", "4", "8", "DDR4, DDR3", "64-bit", "14 nm", "35 W", "Discontinued", "Q4'15", "Xeon D"],
+    ["D-1528", "Xeon", "Server", "1.90 GHz", "2.50 GHz", "9 MB", "", "6", "12", "DDR4, DDR3", "64-bit", "14 nm", "35 W", "Discontinued", "Q4'15", "Xeon D"],
+    ["D-1529", "Xeon", "Server", "1.30 GHz", "1.30 GHz", "6 MB", "", "4", "8", "DDR4, DDR3", "64-bit", "14 nm", "20 W", "Discontinued", "Q2'16", "Xeon D"],
+    ["D-1531", "Xeon", "Server", "2.20 GHz", "2.70 GHz", "9 MB", "", "6", "12", "DDR4, DDR3", "64-bit", "14 nm", "45 W", "Discontinued", "Q4'15", "Xeon D"],
+    ["D-1533N", "Xeon", "Server", "2.10 GHz", "2.70 GHz", "9 MB", "", "6", "12", "DDR4, DDR3", "64-bit", "14 nm", "45 W", "Launched", "Q3'17", "Xeon D"],
+    ["D-1537", "Xeon", "Server", "1.70 GHz", "2.30 GHz", "12 MB", "", "8", "16", "DDR4, DDR3", "64-bit", "14 nm", "35 W", "Discontinued", "Q4'15", "Xeon D"],
+    ["D-1539", "Xeon", "Server", "1.60 GHz", "2.20 GHz", "12 MB", "", "8", "16", "DDR4, DDR3", "64-bit", "14 nm", "35 W", "Discontinued", "Q2'16", "Xeon D"],
+    ["D-1540", "Xeon", "Server", "2.00 GHz", "2.60 GHz", "12 MB", "", "8", "16", "DDR4", "64-bit", "14 nm", "45 W", "Discontinued", "Q1'15", "Xeon D"],
+    ["D-1541", "Xeon", "Server", "2.10 GHz", "2.70 GHz", "12 MB", "", "8", "16", "DDR4, DDR3", "64-bit", "14 nm", "45 W", "Discontinued", "Q4'15", "Xeon D"],
+    ["D-1543N", "Xeon", "Server", "1.90 GHz", "2.50 GHz", "12 MB", "", "8", "16", "DDR4, DDR3", "64-bit", "14 nm", "45 W", "Launched", "Q3'17", "Xeon D"],
+    ["D-1548", "Xeon", "Server", "2.00 GHz", "2.60 GHz", "12 MB", "", "8", "16", "DDR4, DDR3", "64-bit", "14 nm", "45 W", "Discontinued", "Q4'15", "Xeon D"],
+    ["D-1553N", "Xeon", "Server", "2.30 GHz", "2.70 GHz", "12 MB", "", "8", "16", "DDR4, DDR3", "64-bit", "14 nm", "65 W", "Launched", "Q3'17", "Xeon D"],
+    ["D-1557", "Xeon", "Server", "1.50 GHz", "2.10 GHz", "18 MB", "", "12", "24", "DDR4, DDR3", "64-bit", "14 nm", "45 W", "Launched", "Q1'16", "Xeon D"],
+    ["D-1559", "Xeon", "Server", "1.50 GHz", "2.10 GHz", "18 MB", "", "12", "24", "DDR4, DDR3", "64-bit", "14 nm", "45 W", "Launched", "Q2'16", "Xeon D"],
+    ["D-1567", "Xeon", "Server", "2.10 GHz", "2.70 GHz", "18 MB", "", "12", "24", "DDR4, DDR3", "64-bit", "14 nm", "65 W", "Launched", "Q1'16", "Xeon D"],
+    ["D-1571", "Xeon", "Server", "1.30 GHz", "2.10 GHz", "24 MB", "", "16", "32", "DDR4, DDR3", "64-bit", "14 nm", "45 W", "Launched", "Q1'16", "Xeon D"],
+    ["D-1577", "Xeon", "Server", "1.30 GHz", "2.10 GHz", "24 MB", "", "16", "32", "DDR4, DDR3", "64-bit", "14 nm", "45 W", "Launched", "Q1'16", "Xeon D"],
+    ["D-2123IT", "Xeon", "Server", "2.20 GHz", "3.00 GHz", "8 MB", "", "4", "8", "DDR4", "64-bit", "14 nm", "60 W", "Launched", "Q1'18", "Xeon D"],
+    ["D-2141I", "Xeon", "Server", "2.20 GHz", "3.00 GHz", "11 MB", "", "8", "16", "DDR4", "64-bit", "14 nm", "65 W", "Launched", "Q1'18", "Xeon D"],
+    ["D-2142IT", "Xeon", "Server", "1.90 GHz", "3.00 GHz", "11 MB", "", "8", "16", "DDR4", "64-bit", "14 nm", "65 W", "Launched", "Q1'18", "Xeon D"],
+    ["D-2143IT", "Xeon", "Server", "2.20 GHz", "3.00 GHz", "11 MB", "", "8", "16", "DDR4", "64-bit", "14 nm", "65 W", "Launched", "Q1'18", "Xeon D"],
+    ["D-2145NT", "Xeon", "Server", "1.90 GHz", "3.00 GHz", "11 MB", "", "8", "16", "DDR4", "64-bit", "14 nm", "65 W", "Launched", "Q1'18", "Xeon D"],
+    ["D-2146NT", "Xeon", "Server", "2.30 GHz", "3.00 GHz", "11 MB", "", "8", "16", "DDR4", "64-bit", "14 nm", "80 W", "Launched", "Q1'18", "Xeon D"],
+    ["D-2161I", "Xeon", "Server", "2.20 GHz", "3.00 GHz", "16.5 MB", "", "12", "24", "DDR4", "64-bit", "14 nm", "90 W", "Launched", "Q1'18", "Xeon D"],
+    ["D-2163IT", "Xeon", "Server", "2.10 GHz", "3.00 GHz", "17 MB", "", "12", "24", "DDR4", "64-bit", "14 nm", "75 W", "Launched", "Q1'18", "Xeon D"],
+    ["D-2166NT", "Xeon", "Server", "2.00 GHz", "3.00 GHz", "17 MB", "", "12", "24", "DDR4", "64-bit", "14 nm", "85 W", "Launched", "Q1'18", "Xeon D"],
+    ["D-2173IT", "Xeon", "Server", "1.70 GHz", "3.00 GHz", "19 MB", "", "14", "28", "DDR4", "64-bit", "14 nm", "70 W", "Launched", "Q1'18", "Xeon D"],
+    ["D-2177NT", "Xeon", "Server", "1.90 GHz", "3.00 GHz", "19 MB", "", "14", "28", "DDR4", "64-bit", "14 nm", "105 W", "Launched", "Q1'18", "Xeon D"],
+    ["D-2183IT", "Xeon", "Server", "2.20 GHz", "3.00 GHz", "22 MB", "", "16", "32", "DDR4", "64-bit", "14 nm", "100 W", "Launched", "Q1'18", "Xeon D"],
+    ["D-2187NT", "Xeon", "Server", "2.00 GHz", "3.00 GHz", "22 MB", "", "16", "32", "DDR4", "64-bit", "14 nm", "110 W", "Launched", "Q1'18", "Xeon D"],
+    ["D1507", "Pentium", "Server", "1.20 GHz", "", "3 MB", "", "2", "2", "DDR4, DDR3", "64-bit", "14 nm", "20 W", "Discontinued", "Q4'15", "Pentium D"],
+    ["D1508", "Pentium", "Server", "2.20 GHz", "2.60 GHz", "3 MB", "", "2", "4", "DDR4, DDR3", "64-bit", "14 nm", "25 W", "Discontinued", "Q4'15", "Pentium D"],
+    ["D1509", "Pentium", "Server", "1.50 GHz", "", "3 MB", "", "2", "2", "DDR4, DDR3", "64-bit", "14 nm", "19 W", "Discontinued", "Q4'15", "Pentium D"],
+    ["D1517", "Pentium", "Server", "1.60 GHz", "2.20 GHz", "6 MB", "", "4", "8", "DDR4, DDR3", "64-bit", "7 nm", "25 W", "Discontinued", "Q4'15", "Pentium D"],
+    ["D1519", "Pentium", "Server", "1.50 GHz", "2.10 GHz", "6 MB", "", "4", "8", "DDR4, DDR3", "64-bit", "7 nm", "25 W", "Discontinued", "Q2'16", "Pentium D"],
+    ["E-2104G", "Xeon", "Server", "3.20 GHz", "", "8 MB", "8 GT/s", "4", "4", "DDR4-2666", "64-bit", "14 nm", "65 W", "Discontinued", "Q3'18", "Xeon E"],
+    ["E3-1220 v5", "Xeon", "Server", "3.00 GHz", "3.50 GHz", "8 MB", "8 GT/s", "4", "4", "DDR4-1866/2…", "64-bit", "14 nm", "80 W", "Discontinued", "Q4'15", "Xeon E3 v5"],
+    ["E3-1220 v6", "Xeon", "Server", "3.00 GHz", "3.50 GHz", "8 MB", "8 GT/s", "4", "4", "DDR4-2400, …", "64-bit", "14 nm", "72 W", "Discontinued", "Q1'17", "Xeon E3 v6"],
+    ["E3-1225 v5", "Xeon", "Server", "3.30 GHz", "3.70 GHz", "8 MB", "8 GT/s", "4", "4", "DDR4-1866/2…", "64-bit", "14 nm", "80 W", "Launched", "Q4'15", "Xeon E3 v5"],
+    ["E3-1225 v6", "Xeon", "Server", "3.30 GHz", "3.70 GHz", "8 MB", "8 GT/s", "4", "4", "DDR4-2400, …", "64-bit", "14 nm", "73 W", "Discontinued", "Q1'17", "Xeon E3 v6"],
+    ["E3-1230 v5", "Xeon", "Server", "3.40 GHz", "3.80 GHz", "8 MB", "8 GT/s", "4", "8", "DDR4-1866/2…", "64-bit", "14 nm", "80 W", "Discontinued", "Q4'15", "Xeon E3 v5"],
+    ["E3-1230 v6", "Xeon", "Server", "3.50 GHz", "3.90 GHz", "8 MB", "8 GT/s", "4", "8", "DDR4-2400, …", "64-bit", "14 nm", "72 W", "Discontinued", "Q1'17", "Xeon E3 v6"],
+    ["E3-1235L v5", "Xeon", "Server", "2.00 GHz", "3.00 GHz", "8 MB", "8 GT/s", "4", "4", "DDR4-1866/2…", "64-bit", "14 nm", "25 W", "Discontinued", "Q4'15", "Xeon E3 v5"],
+    ["E3-1240 v5", "Xeon", "Server", "3.50 GHz", "3.90 GHz", "8 MB", "8 GT/s", "4", "8", "DDR4-1866/2…", "64-bit", "14 nm", "80 W", "Discontinued", "Q4'15", "Xeon E3 v5"],
+    ["E3-1240 v6", "Xeon", "Server", "3.70 GHz", "4.10 GHz", "8 MB", "8 GT/s", "4", "8", "DDR4-2400, …", "64-bit", "14 nm", "72 W", "Discontinued", "Q1'17", "Xeon E3 v6"],
+    ["E3-1240L v5", "Xeon", "Server", "2.10 GHz", "3.20 GHz", "8 MB", "8 GT/s", "4", "8", "DDR4-1866/2…", "64-bit", "14 nm", "25 W", "Discontinued", "Q4'15", "Xeon E3 v5"],
+    ["E3-1245 v5", "Xeon", "Server", "3.50 GHz", "3.90 GHz", "8 MB", "8 GT/s", "4", "8", "DDR4-1866/2…", "64-bit", "14 nm", "80 W", "Discontinued", "Q4'15", "Xeon E3 v5"],
+    ["E3-1245 v6", "Xeon", "Server", "3.70 GHz", "4.10 GHz", "8 MB", "8 GT/s", "4", "8", "DDR4-2400, …", "64-bit", "14 nm", "73 W", "Discontinued", "Q1'17", "Xeon E3 v6"],
+    ["E3-1258L v4", "Xeon", "Embedded", "1.80 GHz", "3.20 GHz", "6 MB", "5 GT/s", "4", "8", "DDR3L 1600", "64-bit", "14 nm", "47 W", "Discontinued", "Q2'15", "Xeon E3 v4"],
+    ["E3-1260L v5", "Xeon", "Server", "2.90 GHz", "3.90 GHz", "8 MB", "8 GT/s", "4", "8", "DDR4-1866/2…", "64-bit", "14 nm", "45 W", "Discontinued", "Q4'15", "Xeon E3 v5"],
+    ["E3-1265L v4", "Xeon", "Server", "2.30 GHz", "3.30 GHz", "6 MB", "5 GT/s", "4", "8", "DDR3 and DD…", "64-bit", "14 nm", "35 W", "Discontinued", "Q2'15", "Xeon E3 v4"],
+    ["E3-1268L v5", "Xeon", "Embedded", "2.40 GHz", "3.40 GHz", "8 MB", "8 GT/s", "4", "8", "DDR4-1866/2…", "64-bit", "14 nm", "35 W", "Launched", "Q4'15", "Xeon E3 v5"],
+    ["E3-1270 v5", "Xeon", "Server", "3.60 GHz", "4.00 GHz", "8 MB", "8 GT/s", "4", "8", "DDR4-1866/2…", "64-bit", "14 nm", "80 W", "Discontinued", "Q4'15", "Xeon E3 v5"],
+    ["E3-1270 v6", "Xeon", "Server", "3.80 GHz", "4.20 GHz", "8 MB", "8 GT/s", "4", "8", "DDR4-2400, …", "64-bit", "14 nm", "72 W", "Discontinued", "Q1'17", "Xeon E3 v6"],
+    ["E3-1275 v5", "Xeon", "Server", "3.60 GHz", "4.00 GHz", "8 MB", "8 GT/s", "4", "8", "DDR4-1866/2…", "64-bit", "14 nm", "80 W", "Launched", "Q4'15", "Xeon E3 v5"],
+    ["E3-1275 v6", "Xeon", "Server", "3.80 GHz", "4.20 GHz", "8 MB", "8 GT/s", "4", "8", "DDR4-2400, …", "64-bit", "14 nm", "73 W", "Launched", "Q1'17", "Xeon E3 v6"],
+    ["E3-1278L v4", "Xeon", "Embedded", "2.00 GHz", "3.30 GHz", "6 MB", "5 GT/s", "4", "8", "DDR3L 1600", "64-bit", "14 nm", "47 W", "Discontinued", "Q2'15", "Xeon E3 v4"],
+    ["E3-1280 v5", "Xeon", "Server", "3.70 GHz", "4.00 GHz", "8 MB", "8 GT/s", "4", "8", "DDR4-1866/2…", "64-bit", "14 nm", "80 W", "Discontinued", "Q4'15", "Xeon E3 v5"],
+    ["E3-1280 v6", "Xeon", "Server", "3.90 GHz", "4.20 GHz", "8 MB", "8 GT/s", "4", "8", "DDR4-2400, …", "64-bit", "14 nm", "72 W", "Discontinued", "Q1'17", "Xeon E3 v6"],
+    ["E3-1285 v4", "Xeon", "Server", "3.50 GHz", "3.80 GHz", "6 MB", "5 GT/s", "4", "8", "DDR3 and DD…", "64-bit", "14 nm", "95 W", "Discontinued", "Q2'15", "Xeon E3 v4"],
+    ["E3-1285 v6", "Xeon", "Server", "4.10 GHz", "4.50 GHz", "8 MB", "8 GT/s", "4", "8", "DDR4-2400, …", "64-bit", "14 nm", "79 W", "Discontinued", "Q3'17", "Xeon E3 v6"],
+    ["E3-1285L v4", "Xeon", "Server", "3.40 GHz", "3.80 GHz", "6 MB", "5 GT/s", "4", "8", "DDR3 and DD…", "64-bit", "14 nm", "65 W", "Discontinued", "Q2'15", "Xeon E3 v4"],
+    ["E3-1501L v6", "Xeon", "Embedded", "2.10 GHz", "2.90 GHz", "6 MB", "", "4", "4", "DDR4-2400", "64-bit", "14 nm", "25 W", "Launched", "Q3'16", "Xeon E3 v6"],
+    ["E3-1501M v6", "Xeon", "Embedded", "2.90 GHz", "3.60 GHz", "6 MB", "", "4", "4", "DDR4-2400", "64-bit", "14 nm", "45 W", "Launched", "Q3'16", "Xeon E3 v6"],
+    ["E3-1505L v5", "Xeon", "Embedded", "2.00 GHz", "2.80 GHz", "8 MB", "8 GT/s", "4", "8", "DDR4-2133, …", "64-bit", "14 nm", "25 W", "Launched", "Q4'15", "Xeon E3 v5"],
+    ["E3-1505L v6", "Xeon", "Embedded", "2.20 GHz", "3.00 GHz", "8 MB", "", "4", "8", "DDR4-2400", "64-bit", "14 nm", "25 W", "Launched", "Q1'17", "Xeon E3 v6"],
+    ["E3-1505M v5", "Xeon", "Mobile", "2.80 GHz", "3.70 GHz", "8 MB", "8 GT/s", "4", "8", "DDR4-2133, …", "64-bit", "14 nm", "45 W", "Launched", "Q3'15", "Xeon E3 v5"],
+    ["E3-1505M v6", "Xeon", "Mobile", "3.00 GHz", "4.00 GHz", "8 MB", "8 GT/s", "4", "8", "DDR4-2400, …", "64-bit", "14 nm", "45 W", "Launched", "Q1'17", "Xeon E3 v6"],
+    ["E3-1515M v5", "Xeon", "Mobile", "2.80 GHz", "3.70 GHz", "8 MB", "8 GT/s", "4", "8", "DDR4-2133, …", "64-bit", "14 nm", "45 W", "Launched", "Q1'16", "Xeon E3 v5"],
+    ["E3-1535M v5", "Xeon", "Mobile", "2.90 GHz", "3.80 GHz", "8 MB", "8 GT/s", "4", "8", "DDR4-2133, …", "64-bit", "14 nm", "45 W", "Discontinued", "Q3'15", "Xeon E3 v5"],
+    ["E3-1535M v6", "Xeon", "Mobile", "3.10 GHz", "4.20 GHz", "8 MB", "8 GT/s", "4", "8", "DDR4-2400, …", "64-bit", "14 nm", "45 W", "Discontinued", "Q1'17", "Xeon E3 v6"],
+    ["E3-1545M v5", "Xeon", "Mobile", "2.90 GHz", "3.80 GHz", "8 MB", "8 GT/s", "4", "8", "DDR4-2133, …", "64-bit", "14 nm", "45 W", "Discontinued", "Q1'16", "Xeon E3 v5"],
+    ["E3-1558L v5", "Xeon", "Embedded", "1.90 GHz", "3.30 GHz", "8 MB", "8 GT/s", "4", "8", "DDR3L, DDR4…", "64-bit", "14 nm", "45 W", "Discontinued", "Q2'16", "Xeon E3 v5"],
+    ["E3-1565L v5", "Xeon", "Server", "2.50 GHz", "3.50 GHz", "8 MB", "8 GT/s", "4", "8", "DDR3L,LPDDR…", "64-bit", "14 nm", "35 W", "Discontinued", "Q2'16", "Xeon E3 v5"],
+    ["E3-1575M v5", "Xeon", "Mobile", "3.00 GHz", "3.90 GHz", "8 MB", "8 GT/s", "4", "8", "DDR4-2133, …", "64-bit", "14 nm", "45 W", "Discontinued", "Q1'16", "Xeon E3 v5"],
+    ["E3-1578L v5", "Xeon", "Embedded", "2.00 GHz", "3.40 GHz", "8 MB", "8 GT/s", "4", "8", "DDR3L, DDR4…", "64-bit", "14 nm", "45 W", "Discontinued", "Q2'16", "Xeon E3 v5"],
+    ["E3-1585 v5", "Xeon", "Server", "3.50 GHz", "3.90 GHz", "8 MB", "8 GT/s", "4", "8", "DDR3L,LPDDR…", "64-bit", "14 nm", "65 W", "Discontinued", "Q2'16", "Xeon E3 v5"],
+    ["E3-1585L v5", "Xeon", "Server", "3.00 GHz", "3.70 GHz", "8 MB", "8 GT/s", "4", "8", "DDR3L,LPDDR…", "64-bit", "14 nm", "45 W", "Discontinued", "Q2'16", "Xeon E3 v5"],
+    ["E3805", "Atom", "Embedded", "1.33 GHz", "", "1 MB", "", "2", "2", "DDR3L 1067", "64-bit", "22 nm", "3 W", "Launched", "Q4'14", "Atom E"],
+    ["E3815", "Atom", "Embedded", "1.46 GHz", "", "512 KB", "", "1", "1", "DDR3L 1067", "64-bit", "22 nm", "5 W", "Launched", "Q4'13", "Atom E"],
+    ["E3825", "Atom", "Embedded", "1.33 GHz", "", "1 MB", "", "2", "2", "DDR3L 1067", "64-bit", "22 nm", "6 W", "Launched", "Q4'13", "Atom E"],
+    ["E3826", "Atom", "Embedded", "1.46 GHz", "", "1 MB", "", "2", "2", "DDR3L 1067", "64-bit", "22 nm", "7 W", "Launched", "Q4'13", "Atom E"],
+    ["E3827", "Atom", "Embedded", "1.75 GHz", "", "1 MB", "", "2", "2", "DDR3L 1333", "64-bit", "22 nm", "8 W", "Launched", "Q4'13", "Atom E"],
+    ["E3845", "Atom", "Embedded", "1.91 GHz", "", "2 MB", "", "4", "4", "DDR3L 1333", "64-bit", "22 nm", "10 W", "Launched", "Q4'13", "Atom E"],
+    ["E5-1620 v4", "Xeon", "Server", "3.50 GHz", "3.80 GHz", "10 MB", "0 GT/s", "4", "8", "DDR4 1600/1…", "64-bit", "14 nm", "140 W", "Discontinued", "Q2'16", "Xeon E5 v4"],
+    ["E5-1630 v4", "Xeon", "Server", "3.70 GHz", "4.00 GHz", "10 MB", "0 GT/s", "4", "8", "DDR4 1600/1…", "64-bit", "14 nm", "140 W", "Discontinued", "Q2'16", "Xeon E5 v4"],
+    ["E5-1650 v4", "Xeon", "Server", "3.60 GHz", "4.00 GHz", "15 MB", "0 GT/s", "6", "12", "DDR4 1600/1…", "64-bit", "14 nm", "140 W", "Discontinued", "Q2'16", "Xeon E5 v4"],
+    ["E5-1660 v4", "Xeon", "Server", "3.20 GHz", "3.80 GHz", "20 MB", "0 GT/s", "8", "16", "DDR4 1600/1…", "64-bit", "14 nm", "140 W", "Discontinued", "Q2'16", "Xeon E5 v4"],
+    ["E5-1680 v4", "Xeon", "Server", "3.40 GHz", "4.00 GHz", "20 MB", "0 GT/s", "8", "16", "DDR4 1600/1…", "64-bit", "14 nm", "140 W", "Discontinued", "Q2'16", "Xeon E5 v4"],
+    ["E5-2603 v4", "Xeon", "Server", "1.70 GHz", "", "15 MB", "6.4 GT/s", "6", "6", "DDR4 1600/1…", "64-bit", "14 nm", "85 W", "Discontinued", "Q1'16", "Xeon E5 v4"],
+    ["E5-2608L v4", "Xeon", "Embedded", "1.60 GHz", "1.70 GHz", "20 MB", "6.4 GT/s", "8", "16", "DDR4 1600/1…", "64-bit", "14 nm", "50 W", "Launched", "Q1'16", "Xeon E5 v4"],
+    ["E5-2609 v4", "Xeon", "Server", "1.70 GHz", "", "20 MB", "6.4 GT/s", "8", "8", "DDR4 1600/1…", "64-bit", "14 nm", "85 W", "Launched", "Q1'16", "Xeon E5 v4"],
+    ["E5-2618L v4", "Xeon", "Embedded", "2.20 GHz", "3.20 GHz", "25 MB", "8 GT/s", "10", "20", "DDR4 1600/1…", "64-bit", "14 nm", "75 W", "Launched", "Q1'16", "Xeon E5 v4"],
+    ["E5-2620 v4", "Xeon", "Server", "2.10 GHz", "3.00 GHz", "20 MB", "8 GT/s", "8", "16", "DDR4 1600/1…", "64-bit", "14 nm", "85 W", "Launched", "Q1'16", "Xeon E5 v4"],
+    ["E5-2623 v4", "Xeon", "Server", "2.60 GHz", "3.20 GHz", "10 MB", "8 GT/s", "4", "8", "DDR4 1600/1…", "64-bit", "14 nm", "85 W", "Discontinued", "Q1'16", "Xeon E5 v4"],
+    ["E5-2628L v4", "Xeon", "Embedded", "1.90 GHz", "2.40 GHz", "30 MB", "8 GT/s", "12", "24", "DDR4 1600/1…", "64-bit", "14 nm", "75 W", "Launched", "Q1'16", "Xeon E5 v4"],
+    ["E5-2630 v4", "Xeon", "Server", "2.20 GHz", "3.10 GHz", "25 MB", "8 GT/s", "10", "20", "DDR4 1600/1…", "64-bit", "14 nm", "85 W", "Discontinued", "Q1'16", "Xeon E5 v4"],
+    ["E5-2630L v4", "Xeon", "Server", "1.80 GHz", "2.90 GHz", "25 MB", "8 GT/s", "10", "20", "DDR4 1600/1…", "64-bit", "14 nm", "55 W", "Discontinued", "Q1'16", "Xeon E5 v4"],
+    ["E5-2637 v4", "Xeon", "Server", "3.50 GHz", "3.70 GHz", "15 MB", "9.6 GT/s", "4", "8", "DDR4 1600/1…", "64-bit", "14 nm", "135 W", "Discontinued", "Q1'16", "Xeon E5 v4"],
+    ["E5-2640 v4", "Xeon", "Server", "2.40 GHz", "3.40 GHz", "25 MB", "8 GT/s", "10", "20", "DDR4 1600/1…", "64-bit", "14 nm", "90 W", "Launched", "Q1'16", "Xeon E5 v4"],
+    ["E5-2643 v4", "Xeon", "Server", "3.40 GHz", "3.70 GHz", "20 MB", "9.6 GT/s", "6", "12", "DDR4 1600/1…", "64-bit", "14 nm", "135 W", "Discontinued", "Q1'16", "Xeon E5 v4"],
+    ["E5-2648L v4", "Xeon", "Embedded", "1.80 GHz", "2.50 GHz", "35 MB", "9.6 GT/s", "14", "28", "DDR4 1600/1…", "64-bit", "14 nm", "75 W", "Launched", "Q1'16", "Xeon E5 v4"],
+    ["E5-2650 v4", "Xeon", "Server", "2.20 GHz", "2.90 GHz", "30 MB", "9.6 GT/s", "12", "24", "DDR4 1600/1…", "64-bit", "14 nm", "105 W", "Discontinued", "Q1'16", "Xeon E5 v4"],
+    ["E5-2650L v4", "Xeon", "Server", "1.70 GHz", "2.50 GHz", "35 MB", "9.6 GT/s", "14", "28", "DDR4 1600/1…", "64-bit", "14 nm", "65 W", "Discontinued", "Q1'16", "Xeon E5 v4"],
+    ["E5-2658 v4", "Xeon", "Embedded", "2.30 GHz", "2.80 GHz", "35 MB", "9.6 GT/s", "14", "28", "DDR4 1600/1…", "64-bit", "14 nm", "105 W", "Discontinued", "Q1'16", "Xeon E5 v4"],
+    ["E5-2660 v4", "Xeon", "Server", "2.00 GHz", "3.20 GHz", "35 MB", "9.6 GT/s", "14", "28", "DDR4 1600/1…", "64-bit", "14 nm", "105 W", "Discontinued", "Q1'16", "Xeon E5 v4"],
+    ["E5-2667 v4", "Xeon", "Server", "3.20 GHz", "3.60 GHz", "25 MB", "9.6 GT/s", "8", "16", "DDR4 1600/1…", "64-bit", "14 nm", "135 W", "Discontinued", "Q1'16", "Xeon E5 v4"],
+    ["E5-2680 v4", "Xeon", "Server", "2.40 GHz", "3.30 GHz", "35 MB", "9.6 GT/s", "14", "28", "DDR4 1600/1…", "64-bit", "14 nm", "120 W", "Launched", "Q1'16", "Xeon E5 v4"],
+    ["E5-2683 v4", "Xeon", "Server", "2.10 GHz", "3.00 GHz", "40 MB", "9.6 GT/s", "16", "32", "DDR4 1600/1…", "64-bit", "14 nm", "120 W", "Discontinued", "Q1'16", "Xeon E5 v4"],
+    ["E5-2687W v4", "Xeon", "Server", "3.00 GHz", "3.50 GHz", "30 MB", "9.6 GT/s", "12", "24", "DDR4 1600/1…", "64-bit", "14 nm", "160 W", "Discontinued", "Q1'16", "Xeon E5 v4"],
+    ["E5-2690 v4", "Xeon", "Server", "2.60 GHz", "3.50 GHz", "35 MB", "9.6 GT/s", "14", "28", "DDR4 1600/1…", "64-bit", "14 nm", "135 W", "Discontinued", "Q1'16", "Xeon E5 v4"],
+    ["E5-2695 v4", "Xeon", "Server", "2.10 GHz", "3.30 GHz", "45 MB", "9.6 GT/s", "18", "36", "DDR4 1600/1…", "64-bit", "14 nm", "120 W", "Launched", "Q1'16", "Xeon E5 v4"],
+    ["E5-2697 v4", "Xeon", "Server", "2.30 GHz", "3.60 GHz", "45 MB", "9.6 GT/s", "18", "36", "DDR4 1600/1…", "64-bit", "14 nm", "145 W", "Discontinued", "Q1'16", "Xeon E5 v4"],
+    ["E5-2697A v4", "Xeon", "Server", "2.60 GHz", "3.60 GHz", "40 MB", "9.6 GT/s", "16", "32", "DDR4 1600/1…", "64-bit", "14 nm", "145 W", "Discontinued", "Q1'16", "Xeon E5 v4"],
+    ["E5-2698 v4", "Xeon", "Server", "2.20 GHz", "3.60 GHz", "50 MB", "9.6 GT/s", "20", "40", "DDR4 1600/1…", "64-bit", "14 nm", "135 W", "Launched", "Q1'16", "Xeon E5 v4"],
+    ["E5-2699 v4", "Xeon", "Server", "2.20 GHz", "3.60 GHz", "55 MB", "9.6 GT/s", "22", "44", "DDR4 1600/1…", "64-bit", "14 nm", "145 W", "Discontinued", "Q1'16", "Xeon E5 v4"],
+    ["E5-2699A v4", "Xeon", "Server", "2.20 GHz", "3.60 GHz", "55 MB", "9.6 GT/s", "22", "44", "DDR4 1600/1…", "64-bit", "14 nm", "145 W", "Discontinued", "Q1'16", "Xeon E5 v4"],
+    ["E5-2699R v4", "Xeon", "Embedded", "2.20 GHz", "3.60 GHz", "55 MB", "9.6 GT/s", "22", "44", "DDR4 1600/1…", "64-bit", "14 nm", "145 W", "Launched", "04'16", "Xeon E5 v4"],
+    ["E5-4610 v4", "Xeon", "Server", "1.80 GHz", "1.80 GHz", "25 MB", "6.4 GT/s", "10", "20", "DDR4", "64-bit", "14 nm", "105 W", "Discontinued", "Q2'16", "Xeon E5 v4"],
+    ["E5-4620 v4", "Xeon", "Server", "2.10 GHz", "2.60 GHz", "25 MB", "8 GT/s", "10", "20", "DDR4", "64-bit", "14 nm", "105 W", "Discontinued", "Q2'16", "Xeon E5 v4"],
+    ["E5-4627 v4", "Xeon", "Server", "2.60 GHz", "3.20 GHz", "25 MB", "8 GT/s", "10", "10", "DDR4", "64-bit", "14 nm", "135 W", "Discontinued", "Q2'16", "Xeon E5 v4"],
+    ["E5-4628L v4", "Xeon", "Embedded", "1.80 GHz", "2.20 GHz", "35 MB", "8 GT/s", "14", "28", "DDR4", "64-bit", "14 nm", "75 W", "Launched", "Q2'16", "Xeon E5 v4"],
+    ["E5-4640 v4", "Xeon", "Server", "2.10 GHz", "2.60 GHz", "30 MB", "8 GT/s", "12", "24", "DDR4", "64-bit", "14 nm", "105 W", "Discontinued", "Q2'16", "Xeon E5 v4"],
+    ["E5-4650 v4", "Xeon", "Server", "2.20 GHz", "2.80 GHz", "35 MB", "9.6 GT/s", "14", "28", "DDR4", "64-bit", "14 nm", "105 W", "Discontinued", "Q2'16", "Xeon E5 v4"],
+    ["E5-4655 v4", "Xeon", "Server", "2.50 GHz", "3.20 GHz", "30 MB", "9.6 GT/s", "8", "16", "DDR4", "64-bit", "14 nm", "135 W", "Discontinued", "Q2'16", "Xeon E5 v4"],
+    ["E5-4660 v4", "Xeon", "Server", "2.20 GHz", "3.00 GHz", "40 MB", "9.6 GT/s", "16", "32", "DDR4", "64-bit", "14 nm", "120 W", "Launched", "Q2'16", "Xeon E5 v4"],
+    ["E5-4667 v4", "Xeon", "Server", "2.20 GHz", "3.00 GHz", "45 MB", "9.6 GT/s", "18", "36", "DDR4", "64-bit", "14 nm", "135 W", "Discontinued", "Q2'16", "Xeon E5 v4"],
+    ["E5-4669 v4", "Xeon", "Server", "2.20 GHz", "3.00 GHz", "55 MB", "9.6 GT/s", "22", "44", "DDR4", "64-bit", "14 nm", "135 W", "Discontinued", "Q2'16", "Xeon E5 v4"],
+    ["E7-4809 v4", "Xeon", "Server", "2.10 GHz", "", "20 MB", "6.4 GT/s", "8", "16", "DDR4-1333/1…", "64-bit", "14 nm", "115 W", "Discontinued", "Q2'16", "Xeon E7 v4"],
+    ["E7-4820 v4", "Xeon", "Server", "2.00 GHz", "", "25 MB", "6.4 GT/s", "10", "20", "DDR4-1333/1…", "64-bit", "14 nm", "115 W", "Discontinued", "Q2'16", "Xeon E7 v4"],
+    ["E7-4830 v4", "Xeon", "Server", "2.00 GHz", "2.80 GHz", "35 MB", "8 GT/s", "14", "28", "DDR4-1333/1…", "64-bit", "14 nm", "115 W", "Discontinued", "Q2'16", "Xeon E7 v4"],
+    ["E7-4850 v4", "Xeon", "Server", "2.10 GHz", "2.80 GHz", "40 MB", "8 GT/s", "16", "32", "DDR4-1333/1…", "64-bit", "14 nm", "115 W", "Discontinued", "Q2'16", "Xeon E7 v4"],
+    ["E7-8860 v4", "Xeon", "Server", "2.20 GHz", "3.20 GHz", "45 MB", "9.6 GT/s", "18", "36", "DDR4-1333/1…", "64-bit", "14 nm", "140 W", "Discontinued", "Q2'16", "Xeon E7 v4"],
+    ["E7-8867 v4", "Xeon", "Server", "2.40 GHz", "3.30 GHz", "45 MB", "9.6 GT/s", "18", "36", "DDR4-1333/1…", "64-bit", "14 nm", "165 W", "Discontinued", "Q2'16", "Xeon E7 v4"],
+    ["E7-8870 v4", "Xeon", "Server", "2.10 GHz", "3.00 GHz", "50 MB", "9.6 GT/s", "20", "40", "DDR4-1333/1…", "64-bit", "14 nm", "140 W", "Discontinued", "Q2'16", "Xeon E7 v4"],
+    ["E7-8880 v4", "Xeon", "Server", "2.20 GHz", "3.30 GHz", "55 MB", "9.6 GT/s", "22", "44", "DDR4-1333/1…", "64-bit", "14 nm", "150 W", "Discontinued", "Q2'16", "Xeon E7 v4"],
+    ["E7-8890 v4", "Xeon", "Server", "2.20 GHz", "3.40 GHz", "60 MB", "9.6 GT/s", "24", "48", "DDR4-1333/1…", "64-bit", "14 nm", "165 W", "Discontinued", "Q2'16", "Xeon E7 v4"],
+    ["E7-8891 v4", "Xeon", "Server", "2.80 GHz", "3.50 GHz", "60 MB", "9.6 GT/s", "10", "20", "DDR4-1333/1…", "64-bit", "14 nm", "165 W", "Discontinued", "Q2'16", "Xeon E7 v4"],
+    ["E7-8893 v4", "Xeon", "Server", "3.20 GHz", "3.50 GHz", "60 MB", "9.6 GT/s", "4", "8", "DDR4-1333/1…", "64-bit", "14 nm", "140 W", "Discontinued", "Q2'16", "Xeon E7 v4"],
+    ["E7-8894 v4", "Xeon", "Server", "2.40 GHz", "3.40 GHz", "60 MB", "9.6 GT/s", "24", "48", "DDR4-1333/1…", "64-bit", "14 nm", "165 W", "Discontinued", "Q1'17", "Xeon E7 v4"],
+    ["G3900", "Celeron", "Desktop", "2.80 GHz", "", "2 MB", "8 GT/s", "2", "2", "DDR4-1866/2…", "64-bit", "14 nm", "51 W", "Launched", "Q4'15", "Celeron G"],
+    ["G3900E", "Celeron", "Embedded", "2.40 GHz", "", "2 MB", "8 GT/s", "2", "2", "DDR4-1866/2…", "64-bit", "14 nm", "35 W", "Launched", "Q1'16", "Celeron G"],
+    ["G3900T", "Celeron", "Desktop", "2.60 GHz", "", "2 MB", "8 GT/s", "2", "2", "DDR4-1866/2…", "64-bit", "14 nm", "35 W", "Discontinued", "Q4'15", "Celeron G"],
+    ["G3900TE", "Celeron", "Embedded", "2.30 GHz", "", "2 MB", "8 GT/s", "2", "2", "DDR4-1866/2…", "64-bit", "14 nm", "35 W", "Launched", "Q4'15", "Celeron G"],
+    ["G3902E", "Celeron", "Embedded", "1.60 GHz", "", "2 MB", "8 GT/s", "2", "2", "DDR4-1866/2…", "64-bit", "14 nm", "25 W", "Launched", "Q1'16", "Celeron G"],
+    ["G3920", "Celeron", "Desktop", "2.90 GHz", "", "2 MB", "8 GT/s", "2", "2", "DDR4-1866/2…", "64-bit", "14 nm", "51 W", "Discontinued", "Q4'15", "Celeron G"],
+    ["G3930", "Celeron", "Desktop", "2.90 GHz", "", "2 MB", "8 GT/s", "2", "2", "DDR4 2133, …", "64-bit", "14 nm", "51 W", "Discontinued", "Q1'17", "Celeron G"],
+    ["G3930E", "Celeron", "Desktop", "2.90 GHz", "", "2 MB", "", "2", "2", "DDR4-2133, …", "64-bit", "", "54 W", "Launched", "Q2'17", "Celeron G"],
+    ["G3930T", "Celeron", "Desktop", "2.70 GHz", "", "2 MB", "8 GT/s", "2", "2", "DDR4 2133, …", "64-bit", "14 nm", "35 W", "Discontinued", "Q1'17", "Celeron G"],
+    ["G3930TE", "Celeron", "Desktop", "2.70 GHz", "", "2 MB", "", "2", "2", "DDR4-2133, …", "64-bit", "", "35 W", "Launched", "Q2'17", "Celeron G"],
+    ["G3950", "Celeron", "Desktop", "3.00 GHz", "", "2 MB", "8 GT/s", "2", "2", "DDR4 2133, …", "64-bit", "14 nm", "51 W", "Discontinued", "Q1'17", "Celeron G"],
+    ["G4400", "Pentium", "Desktop", "3.30 GHz", "", "3 MB", "8 GT/s", "2", "2", "DDR4-1866/2…", "64-bit", "14 nm", "54 W", "Launched", "Q3'15", "Pentium G"],
+    ["G4400T", "Pentium", "Desktop", "2.90 GHz", "", "3 MB", "8 GT/s", "2", "2", "DDR4-1866/2…", "64-bit", "14 nm", "35 W", "Discontinued", "Q3'15", "Pentium G"],
+    ["G4400TE", "Pentium", "Embedded", "2.40 GHz", "", "3 MB", "8 GT/s", "2", "2", "DDR4-1866/2…", "64-bit", "14 nm", "35 W", "Launched", "Q4'15", "Pentium G"],
+    ["G4500", "Pentium", "Desktop", "3.50 GHz", "", "3 MB", "8 GT/s", "2", "2", "DDR4-1866/2…", "64-bit", "14 nm", "51 W", "Discontinued", "Q3'15", "Pentium G"],
+    ["G4500T", "Pentium", "Desktop", "3.00 GHz", "", "3 MB", "8 GT/s", "2", "2", "DDR4-1866/2…", "64-bit", "14 nm", "35 W", "Discontinued", "Q3'15", "Pentium G"],
+    ["G4520", "Pentium", "Desktop", "3.60 GHz", "", "3 MB", "8 GT/s", "2", "2", "DDR4-1866/2…", "64-bit", "14 nm", "51 W", "Discontinued", "Q3'15", "Pentium G"],
+    ["G4560", "Pentium", "Desktop", "3.50 GHz", "", "3 MB", "8 GT/s", "2", "4", "DDR4-2133/2…", "64-bit", "14 nm", "54 W", "Discontinued", "Q1'17", "Pentium G"],
+    ["G4560T", "Pentium", "Desktop", "2.90 GHz", "", "3 MB", "8 GT/s", "2", "4", "DDR4-2133/2…", "64-bit", "14 nm", "35 W", "Discontinued", "Q1'17", "Pentium G"],
+    ["G4600", "Pentium", "Desktop", "3.60 GHz", "", "3 MB", "8 GT/s", "2", "4", "DDR4-2133/2…", "64-bit", "14 nm", "51 W", "Discontinued", "Q1'17", "Pentium G"],
+    ["G4600T", "Pentium", "Desktop", "3.00 GHz", "", "3 MB", "8 GT/s", "2", "4", "DDR4-2133/2…", "64-bit", "14 nm", "35 W", "Discontinued", "Q1'17", "Pentium G"],
+    ["G4620", "Pentium", "Desktop", "3.70 GHz", "", "3 MB", "8 GT/s", "2", "4", "DDR4-2133/2…", "64-bit", "14 nm", "51 W", "Discontinued", "Q1'17", "Pentium G"],
+    ["G4900", "Celeron", "Desktop", "3.10 GHz", "", "2 MB", "8 GT/s", "2", "2", "DDR4-2400", "64-bit", "14 nm", "54 W", "Launched", "Q2'18", "Celeron G"],
+    ["Gold 4410Y", "Pentium", "Mobile", "1.50 GHz", "", "2 MB", "4 GT/s", "2", "4", "LPDDR3-1866…", "64-bit", "14 nm", "6 W", "Discontinued", "Q1'17", "Pentium Gold"],
+    ["Gold 4415U", "Pentium", "Mobile", "2.30 GHz", "", "2 MB", "4 GT/s", "2", "4", "DDR4-2133, …", "64-bit", "14 nm", "15 W", "Discontinued", "Q1'17", "Pentium Gold"],
+    ["Gold 4415Y", "Pentium", "Mobile", "1.60 GHz", "", "2 MB", "4 GT/s", "2", "4", "LPDDR3-1866…", "64-bit", "14 nm", "6 W", "Discontinued", "Q2'17", "Pentium Gold"],
+    ["Gold 5115", "Xeon", "Server", "2.40 GHz", "3.20 GHz", "13.75 MB", "", "10", "20", "DDR4-2400", "", "14 nm", "85 W", "Discontinued", "Q3'17", "Xeon"],
+    ["Gold 5118", "Xeon", "Server", "2.3 GHz", "3.20 GHz", "16.5 MB", "", "12", "24", "DDR4-2400", "", "14 nm", "105 W", "Launched", "Q3'17", "Xeon"],
+    ["Gold 5119T", "Xeon", "Server", "1.90 GHz", "3.20 GHz", "19.25 MB", "", "14", "28", "DDR4-2400", "", "14 nm", "85 W", "Launched", "Q3'17", "Xeon"],
+    ["Gold 5120", "Xeon", "Server", "2.20 GHz", "3.20 GHz", "19.25 MB", "", "14", "28", "DDR4-2400", "", "14 nm", "105 W", "Discontinued", "Q3'17", "Xeon"],
+    ["Gold 5120T", "Xeon", "Server", "2.20 GHz", "3.20 GHz", "19.25 MB", "", "14", "28", "DDR4-2400", "", "14 nm", "105 W", "Launched", "Q3'17", "Xeon"],
+    ["Gold 5122", "Xeon", "Server", "3.60 GHz", "3.70 GHz", "16.5 MB", "", "4", "8", "DDR4-2666", "", "14 nm", "105 W", "Discontinued", "Q3'17", "Xeon"],
+    ["Gold 5215", "Xeon", "Server", "2.50 GHz", "3.40 GHz", "13.75 MB", "", "10", "20", "DDR4-2667", "", "14 nm", "85 W", "Launched", "Q2'19", "2nd Gen Xeon"],
+    ["Gold 5215L", "Xeon", "Server", "2.50 GHz", "3.40 GHz", "13.75 MB", "", "10", "20", "DDR4-2667", "", "14 nm", "85 W", "Discontinued", "Q2'19", "2nd Gen Xeon"],
+    ["Gold 5215M", "Xeon", "Server", "2.50 GHz", "3.40 GHz", "13.75 MB", "", "10", "20", "DDR4-2667", "", "14 nm", "85 W", "Launched", "Q2'19", "2nd Gen Xeon"],
+    ["Gold 5217", "Xeon", "Server", "3.00 GHz", "3.70 GHz", "11 MB", "", "8", "16", "DDR4-2667", "", "14 nm", "115 W", "Discontinued", "Q2'19", "2nd Gen Xeon"],
+    ["Gold 5218", "Xeon", "Server", "2.30 GHz", "3.90 GHz", "22 MB", "", "16", "32", "DDR4-2667", "", "14 nm", "125 W", "Discontinued", "Q2'19", "2nd Gen Xeon"],
+    ["Gold 5218B", "Xeon", "Server", "2.30 GHz", "3.90 GHz", "22 MB", "", "16", "32", "DDR4-2667", "", "14 nm", "125 W", "Discontinued", "Q2'19", "2nd Gen Xeon"],
+    ["Gold 5218N", "Xeon", "Server", "2.30 GHz", "3.70 GHz", "22 MB", "", "16", "32", "DDR4-2667", "", "14 nm", "110 W", "Launched", "Q2'19", "2nd Gen Xeon"],
+    ["Gold 5218R", "Xeon", "Server", "2.10 GHz", "4.00 GHz", "27.5 MB", "", "20", "40", "DDR4-2667", "", "14 nm", "125 W", "Discontinued", "Q1'20", "2nd Gen Xeon"],
+    ["Gold 5218T", "Xeon", "Server", "2.10 GHz", "3.80 GHz", "22 MB", "", "16", "32", "DDR4-2667", "", "14 nm", "105 W", "Launched", "Q2'19", "2nd Gen Xeon"],
+    ["Gold 5220", "Xeon", "Server", "2.20 GHz", "3.90 GHz", "24.75 MB", "", "18", "36", "DDR4-2667", "", "14 nm", "125 W", "Discontinued", "Q2'19", "2nd Gen Xeon"],
+    ["Gold 5220R", "Xeon", "Server", "2.20 GHz", "4.00 GHz", "35.75 MB", "", "24", "48", "DDR4-2667", "", "14 nm", "150 W", "Discontinued", "Q1'20", "2nd Gen Xeon"],
+    ["Gold 5220S", "Xeon", "Server", "2.70 GHz", "3.90 GHz", "24.75 MB", "", "18", "36", "DDR4-2667", "", "14 nm", "125 W", "Discontinued", "Q2'19", "2nd Gen Xeon"],
+    ["Gold 5220T", "Xeon", "Server", "1.90 GHz", "3.90 GHz", "24.75 MB", "", "18", "36", "DDR4-2667", "", "14 nm", "105 W", "Launched", "Q2'19", "2nd Gen Xeon"],
+    ["Gold 5222", "Xeon", "Server", "3.80 GHz", "3.90 GHz", "16.5 MB", "", "4", "8", "DDR4-2933", "", "14 nm", "105 W", "Discontinued", "Q2'19", "2nd Gen Xeon"],
+    ["Gold 5415+", "Xeon", "Server", "2.90 GHz", "4.10 GHz", "22.5 MB", "", "8", "16", "Up to DDR5 …", "", "Intel 7", "150 W", "Launched", "Q1'23", "4th Gen Xeon"],
+    ["Gold 5416S", "Xeon", "Server", "2.00 GHz", "4.00 GHz", "30 MB", "", "16", "32", "Up to DDR5 …", "", "Intel 7", "150 W", "Launched", "Q1'23", "4th Gen Xeon"],
+    ["Gold 5418Y", "Xeon", "Server", "2.00 GHz", "3.80 GHz", "45 MB", "", "24", "48", "Up to DDR5 …", "", "Intel 7", "185 W", "Launched", "Q1'23", "4th Gen Xeon"],
+    ["Gold 5420+", "Xeon", "Server", "2.00 GHz", "4.10 GHz", "52.5 MB", "", "28", "56", "Up to DDR5 …", "", "Intel 7", "205 W", "Launched", "Q1'23", "4th Gen Xeon"],
+    ["Gold 6126", "Xeon", "Server", "2.60 GHz", "3.70 GHz", "19.25 MB", "", "12", "24", "DDR4-2666", "", "14 nm", "125 W", "Launched", "Q3'17", "Xeon"],
+    ["Gold 6126F", "Xeon", "Server", "2.60 GHz", "3.70 GHz", "19.25 MB", "", "12", "24", "DDR4-2666", "", "14 nm", "135 W", "Discontinued", "Q3'17", "Xeon"],
+    ["Gold 6126T", "Xeon", "Server", "2.60 GHz", "3.70 GHz", "19.25 MB", "", "12", "24", "DDR4-2666", "", "14 nm", "125 W", "Launched", "Q3'17", "Xeon"],
+    ["Gold 6128", "Xeon", "Server", "3.40 GHz", "3.70 GHz", "19.25 MB", "", "6", "12", "DDR4-2666", "", "14 nm", "115 W", "Discontinued", "Q3'17", "Xeon"],
+    ["Gold 6130", "Xeon", "Server", "2.10 GHz", "3.70 GHz", "22 MB", "", "16", "32", "DDR4-2666", "", "14 nm", "125 W", "Launched", "Q3'17", "Xeon"],
+    ["Gold 6130F", "Xeon", "Server", "2.10 GHz", "3.70 GHz", "22 MB", "", "16", "32", "DDR4-2666", "", "14 nm", "135 W", "Discontinued", "Q3'17", "Xeon"],
+    ["Gold 6130T", "Xeon", "Server", "2.10 GHz", "3.70 GHz", "22 MB", "", "16", "32", "DDR4-2666", "", "14 nm", "125 W", "Launched", "Q3'17", "Xeon"],
+    ["Gold 6132", "Xeon", "Server", "2.60 GHz", "3.70 GHz", "19.25 MB", "", "14", "28", "DDR4-2666", "", "14 nm", "140 W", "Discontinued", "Q3'17", "Xeon"],
+    ["Gold 6134", "Xeon", "Server", "3.20 GHz", "3.70 GHz", "24.75 MB", "", "8", "16", "DDR4-2666", "", "14 nm", "130 W", "Discontinued", "Q3'17", "Xeon"],
+    ["Gold 6136", "Xeon", "Server", "3.00 GHz", "3.70 GHz", "24.75 MB", "", "12", "24", "DDR4-2666", "", "14 nm", "150 W", "Discontinued", "Q3'17", "Xeon"],
+    ["Gold 6138", "Xeon", "Server", "2.00 GHz", "3.70 GHz", "27.5 MB", "", "20", "40", "DDR4-2666", "", "14 nm", "125 W", "Launched", "Q3'17", "Xeon"],
+    ["Gold 6138F", "Xeon", "Server", "2.00 GHz", "3.70 GHz", "27.5 MB", "", "20", "40", "DDR4-2666", "", "14 nm", "135 W", "Discontinued", "Q3'17", "Xeon"],
+    ["Gold 6138P", "Xeon", "Server", "2.00 GHz", "3.70 GHz", "27.5 MB", "", "20", "40", "DDR4-2666", "", "14 nm", "195 W", "Discontinued", "Q2'18", "Xeon"],
+    ["Gold 6138T", "Xeon", "Server", "2.00 GHz", "3.70 GHz", "27.5 MB", "", "20", "40", "DDR4-2666", "", "14 nm", "125 W", "Launched", "Q3'17", "Xeon"],
+    ["Gold 6140", "Xeon", "Server", "2.30 GHz", "3.70 GHz", "24.75 MB", "", "18", "36", "DDR4-2666", "", "14 nm", "140 W", "Discontinued", "Q3'17", "Xeon"],
+    ["Gold 6142", "Xeon", "Server", "2.60 GHz", "3.70 GHz", "22 MB", "", "16", "32", "DDR4-2666", "", "14 nm", "150 W", "Discontinued", "Q3'17", "Xeon"],
+    ["Gold 6142F", "Xeon", "Server", "2.60 GHz", "3.70 GHz", "22 MB", "", "16", "32", "DDR4-2666", "", "14 nm", "160 W", "Discontinued", "Q3'17", "Xeon"],
+    ["Gold 6144", "Xeon", "Server", "3.50 GHz", "4.20 GHz", "24.75 MB", "", "8", "16", "DDR4-2666", "", "14 nm", "150 W", "Discontinued", "Q3'17", "Xeon"],
+    ["Gold 6146", "Xeon", "Server", "3.20 GHz", "4.20 GHz", "24.75 MB", "", "12", "24", "DDR4-2666", "", "14 nm", "165 W", "Discontinued", "Q3'17", "Xeon"],
+    ["Gold 6148", "Xeon", "Server", "2.40 GHz", "3.70 GHz", "27.5 MB", "", "20", "40", "DDR4-2666", "", "14 nm", "150 W", "Discontinued", "Q3'17", "Xeon"],
+    ["Gold 6148F", "Xeon", "Server", "2.40 GHz", "3.70 GHz", "27.5 MB", "", "20", "40", "DDR4-2666", "", "14 nm", "160 W", "Discontinued", "Q3'17", "Xeon"],
+    ["Gold 6150", "Xeon", "Server", "2.70 GHz", "3.70 GHz", "24.75 MB", "", "18", "36", "DDR4-2666", "", "14 nm", "165 W", "Discontinued", "Q3'17", "Xeon"],
+    ["Gold 6152", "Xeon", "Server", "2.10 GHz", "3.70 GHz", "30.25 MB", "", "22", "44", "DDR4-2666", "", "14 nm", "140 W", "Discontinued", "Q3'17", "Xeon"],
+    ["Gold 6154", "Xeon", "Server", "3.00 GHz", "3.70 GHz", "24.75 MB", "", "18", "36", "DDR4-2666", "", "14 nm", "200 W", "Discontinued", "Q3'17", "Xeon"],
+    ["Gold 6208U", "Xeon", "Server", "2.90 GHz", "3.90 GHz", "22 MB", "", "16", "32", "DDR4-2933", "", "14 nm", "150 W", "Launched", "Q1'20", "2nd Gen Xeon"],
+    ["Gold 6209U", "Xeon", "Server", "2.10 GHz", "3.90 GHz", "27.5 MB", "", "20", "40", "DDR4-2933", "", "14 nm", "125 W", "Discontinued", "Q2'19", "2nd Gen Xeon"],
+    ["Gold 6210U", "Xeon", "Server", "2.50 GHz", "3.90 GHz", "27.5 MB", "", "20", "40", "DDR4-2933", "", "14 nm", "150 W", "Discontinued", "Q2'19", "2nd Gen Xeon"],
+    ["Gold 6212U", "Xeon", "Server", "2.40 GHz", "3.90 GHz", "35.75 MB", "", "24", "48", "DDR4-2933", "", "14 nm", "165 W", "Discontinued", "Q2'19", "2nd Gen Xeon"],
+    ["Gold 6222V", "Xeon", "Server", "1.80 GHz", "3.60 GHz", "27.5 MB", "", "20", "40", "DDR4-2400", "", "14 nm", "115 W", "Discontinued", "Q2'19", "2nd Gen Xeon"],
+    ["Gold 6226", "Xeon", "Server", "2.70 GHz", "3.70 GHz", "19.25 MB", "", "12", "24", "DDR4-2933", "", "14 nm", "125 W", "Launched", "Q2'19", "2nd Gen Xeon"],
+    ["Gold 6226R", "Xeon", "Server", "2.90 GHz", "3.90 GHz", "22 MB", "", "16", "32", "DDR4-2933", "", "14 nm", "150 W", "Launched", "Q1'20", "2nd Gen Xeon"],
+    ["Gold 6230", "Xeon", "Server", "2.10 GHz", "3.90 GHz", "27.5 MB", "", "20", "40", "DDR4-2933", "", "14 nm", "125 W", "Launched", "Q2'19", "2nd Gen Xeon"],
+    ["Gold 6230N", "Xeon", "Server", "2.30 GHz", "3.50 GHz", "27.5 MB", "", "20", "40", "DDR4-2933", "", "14 nm", "125 W", "Launched", "Q2'19", "2nd Gen Xeon"],
+    ["Gold 6230R", "Xeon", "Server", "2.10 GHz", "4.00 GHz", "35.75 MB", "", "26", "52", "DDR4-2933", "", "14 nm", "150 W", "Launched", "Q1'20", "2nd Gen Xeon"],
+    ["Gold 6230T", "Xeon", "Server", "2.10 GHz", "3.90 GHz", "27.5 MB", "", "20", "40", "DDR4-2933", "", "14 nm", "125 W", "Launched", "Q2'19", "2nd Gen Xeon"],
+    ["Gold 6234", "Xeon", "Server", "3.30 GHz", "4.00 GHz", "24.75 MB", "", "8", "16", "DDR4-2933", "", "14 nm", "130 W", "Discontinued", "Q2'19", "2nd Gen Xeon"],
+    ["Gold 6238", "Xeon", "Server", "2.10 GHz", "3.70 GHz", "30.25 MB", "", "22", "44", "DDR4-2933", "", "14 nm", "140 W", "Discontinued", "Q2'19", "2nd Gen Xeon"],
+    ["Gold 6238L", "Xeon", "Server", "2.10 GHz", "3.70 GHz", "30.25 MB", "", "22", "44", "DDR4-2933", "", "14 nm", "140 W", "Discontinued", "Q2'19", "2nd Gen Xeon"],
+    ["Gold 6238M", "Xeon", "Server", "2.10 GHz", "3.70 GHz", "30.25 MB", "", "22", "44", "DDR4-2933", "", "14 nm", "140 W", "Discontinued", "Q2'19", "2nd Gen Xeon"],
+    ["Gold 6238R", "Xeon", "Server", "2.20 GHz", "4.00 GHz", "38.5 MB", "", "28", "56", "DDR4-2933", "", "14 nm", "165 W", "Discontinued", "Q1'20", "2nd Gen Xeon"],
+    ["Gold 6238T", "Xeon", "Server", "1.90 GHz", "3.70 GHz", "30.25 MB", "", "22", "44", "DDR4-2933", "", "14 nm", "125 W", "Launched", "Q2'19", "2nd Gen Xeon"],
+    ["Gold 6240", "Xeon", "Server", "2.60 GHz", "3.90 GHz", "24.75 MB", "", "18", "36", "DDR4-2933", "", "14 nm", "150 W", "Discontinued", "Q2'19", "2nd Gen Xeon"],
+    ["Gold 6240L", "Xeon", "Server", "2.60 GHz", "3.90 GHz", "24.75 MB", "", "18", "36", "DDR4-2933", "", "14 nm", "150 W", "Discontinued", "Q2'19", "2nd Gen Xeon"],
+    ["Gold 6240M", "Xeon", "Server", "2.60 GHz", "3.90 GHz", "24.75 MB", "", "18", "36", "DDR4-2933", "", "14 nm", "150 W", "Discontinued", "Q2'19", "2nd Gen Xeon"],
+    ["Gold 6240R", "Xeon", "Server", "2.40 GHz", "4.00 GHz", "35.75 MB", "", "24", "48", "DDR4-2933", "", "14 nm", "165 W", "Discontinued", "Q1'20", "2nd Gen Xeon"],
+    ["Gold 6240Y", "Xeon", "Server", "2.60 GHz", "3.90 GHz", "24.75 MB", "", "18", "36", "DDR4-2933", "", "14 nm", "150 W", "Discontinued", "Q2'19", "2nd Gen Xeon"],
+    ["Gold 6242", "Xeon", "Server", "2.80 GHz", "3.90 GHz", "22 MB", "", "16", "32", "DDR4-2933", "", "14 nm", "150 W", "Discontinued", "Q2'19", "2nd Gen Xeon"],
+    ["Gold 6242R", "Xeon", "Server", "3.10 GHz", "4.10 GHz", "35.75 MB", "", "20", "40", "DDR4-2933", "", "14 nm", "205 W", "Discontinued", "Q1'20", "2nd Gen Xeon"],
+    ["Gold 6244", "Xeon", "Server", "3.60 GHz", "4.40 GHz", "24.75 MB", "", "8", "16", "DDR4-2933", "", "14 nm", "150 W", "Discontinued", "Q2'19", "2nd Gen Xeon"],
+    ["Gold 6246", "Xeon", "Server", "3.30 GHz", "4.20 GHz", "24.75 MB", "", "12", "24", "DDR4-2933", "", "14 nm", "165 W", "Discontinued", "Q2'19", "2nd Gen Xeon"],
+    ["Gold 6246R", "Xeon", "Server", "3.40 GHz", "4.10 GHz", "35.75 MB", "", "16", "32", "DDR4-2933", "", "14 nm", "205 W", "Discontinued", "Q1'20", "2nd Gen Xeon"],
+    ["Gold 6248", "Xeon", "Server", "2.50 GHz", "3.90 GHz", "27.5 MB", "", "20", "40", "DDR4-2933", "", "14 nm", "150 W", "Discontinued", "Q2'19", "2nd Gen Xeon"],
+    ["Gold 6248R", "Xeon", "Server", "3.00 GHz", "4.00 GHz", "35.75 MB", "", "24", "48", "DDR4-2933", "", "14 nm", "205 W", "Discontinued", "Q1'20", "2nd Gen Xeon"],
+    ["Gold 6250", "Xeon", "Server", "3.90 GHz", "4.50 GHz", "35.75 MB", "", "8", "16", "DDR4-2933", "", "14 nm", "185 W", "Discontinued", "Q1'20", "2nd Gen Xeon"],
+    ["Gold 6250L", "Xeon", "Server", "3.90 GHz", "4.50 GHz", "35.75 MB", "", "8", "16", "DDR4-2933", "", "14 nm", "185 W", "Discontinued", "Q1'20", "2nd Gen Xeon"],
+    ["Gold 6252", "Xeon", "Server", "2.10 GHz", "3.70 GHz", "35.75 MB", "", "24", "48", "DDR4-2933", "", "14 nm", "150 W", "Discontinued", "Q2'19", "2nd Gen Xeon"],
+    ["Gold 6252N", "Xeon", "Server", "2.30 GHz", "3.60 GHz", "35.75 MB", "", "24", "48", "DDR4-2933", "", "14 nm", "150 W", "Launched", "Q2'19", "2nd Gen Xeon"],
+    ["Gold 6254", "Xeon", "Server", "3.10 GHz", "4.00 GHz", "24.75 MB", "", "18", "36", "DDR4-2933", "", "14 nm", "200 W", "Discontinued", "Q2'19", "2nd Gen Xeon"],
+    ["Gold 6256", "Xeon", "Server", "3.60 GHz", "4.50 GHz", "33 MB", "", "12", "24", "DDR4-2933", "", "14 nm", "205 W", "Discontinued", "Q1'20", "2nd Gen Xeon"],
+    ["Gold 6258R", "Xeon", "Server", "2.70 GHz", "4.00 GHz", "38.5 MB", "", "28", "56", "DDR4-2933", "", "14 nm", "205 W", "Discontinued", "Q1'20", "2nd Gen Xeon"],
+    ["Gold 6262V", "Xeon", "Server", "1.90 GHz", "3.60 GHz", "33 MB", "", "24", "48", "DDR4-2400", "", "14 nm", "135 W", "Discontinued", "Q2'19", "2nd Gen Xeon"],
+    ["Gold 6416H", "Xeon", "Server", "2.20 GHz", "4.20 GHz", "45 MB", "", "18", "36", "Up to DDR5 …", "", "Intel 7", "165 W", "Launched", "Q1'23", "4th Gen Xeon"],
+    ["Gold 6418H", "Xeon", "Server", "2.10 GHz", "4.00 GHz", "60 MB", "", "24", "48", "Up to DDR5 …", "", "Intel 7", "185 W", "Launched", "Q1'23", "4th Gen Xeon"],
+    ["Gold 6430", "Xeon", "Server", "2.10 GHz", "3.40 GHz", "60 MB", "", "32", "64", "Up to DDR5 …", "", "Intel 7", "270 W", "Launched", "Q1'23", "4th Gen Xeon"],
+    ["Gold 6438Y+", "Xeon", "Server", "2.00 GHz", "4.00 GHz", "60 MB", "", "32", "64", "Up to DDR5 …", "", "Intel 7", "205 W", "Launched", "Q1'23", "4th Gen Xeon"],
+    ["Gold 6442Y", "Xeon", "Server", "2.60 GHz", "4.00 GHz", "60 MB", "", "24", "48", "Up to DDR5 …", "", "Intel 7", "225 W", "Launched", "Q1'23", "4th Gen Xeon"],
+    ["Gold 6444Y", "Xeon", "Server", "3.60 GHz", "4.00 GHz", "45 MB", "", "16", "32", "Up to DDR5 …", "", "Intel 7", "270 W", "Launched", "Q1'23", "4th Gen Xeon"],
+    ["Gold 6805", "Pentium", "Mobile", "1.10 GHz", "3.00 GHz", "4 MB", "", "2", "4", "DDR4-3200, …", "64-bit", "10 nm", "15 W", "Discontinued", "Q4'20", "Pentium 6800"],
+    ["Gold G5400T", "Pentium", "Desktop", "3.10 GHz", "", "4 MB", "8 GT/s", "2", "4", "DDR4-2400", "64-bit", "14 nm", "35 W", "Launched", "Q2'18", "Pentium Gold"],
+    ["Gold G5600E", "Pentium", "Desktop", "3.90 GHz", "", "4 MB", "8 GT/s", "2", "4", "DDR4-2400", "64-bit", "14 nm", "54 W", "Discontinued", "Q2'18", "Pentium Gold"],
+    ["Gold Gold 5218", "Xeon", "Server", "2.30 GHz", "3.90 GHz", "22 MB", "", "16", "32", "DDR4-2667", "", "14 nm", "125 W", "Discontinued", "Q2'19", "2nd Gen Xeon"],
+    ["Gold Gold 5318Y", "Xeon", "Server", "2.10 GHz", "3.40 GHz", "36 MB", "", "24", "48", "DDR4-2933", "", "10 nm", "165 W", "Launched", "Q2'21", "3rd Gen Xeon"],
+    ["Gold Gold 6238R", "Xeon", "Server", "2.20 GHz", "4.00 GHz", "38.5 MB", "", "28", "56", "DDR4-2933", "", "14 nm", "165 W", "Discontinued", "Q1'20", "2nd Gen Xeon"],
+    ["Gold6246", "Xeon", "Server", "3.30 GHz", "4.20 GHz", "24.75 MB", "", "12", "24", "DDR4-2933", "", "14 nm", "165 W", "Discontinued", "Q2'19", "2nd Gen Xeon"],
+    ["Goldv 6234", "Xeon", "Server", "3.30 GHz", "4.00 GHz", "24.75 MB", "", "8", "16", "DDR4-2933", "", "14 nm", "130 W", "Discontinued", "Q2'19", "2nd Gen Xeon"],
+    ["J1900", "Celeron", "Desktop", "2.00 GHz", "", "2 MB", "", "4", "4", "DDR3L 1333", "64-bit", "22 nm", "10 W", "Launched", "Q4'13", "Celeron J"],
+    ["J3355", "Celeron", "Desktop", "2.00 GHz", "", "2 MB", "", "2", "2", "DDR3L/LPDDR…", "64-bit", "14 nm", "10 W", "Launched", "Q3'16", "Celeron J"],
+    ["J3355E", "Celeron", "Desktop", "2.00 GHz", "2.50 GHz", "2 MB", "", "2", "2", "DDR3L/LPDDR…", "64-bit", "14 nm", "10 W", "Discontinued", "Q3'19", "Celeron J"],
+    ["J3455", "Celeron", "Desktop", "1.50 GHz", "", "2 MB", "", "4", "4", "DDR3L/LPDDR…", "64-bit", "14 nm", "10 W", "Launched", "Q3'16", "Celeron J"],
+    ["J3455E", "Celeron", "Desktop", "1.50 GHz", "2.30 GHz", "2 MB", "", "4", "4", "DDR3L/LPDDR…", "64-bit", "14 nm", "10 W", "Discontinued", "Q3'19", "Celeron J"],
+    ["J4005", "Celeron", "Mobile", "2.00 GHz", "", "4 MB", "", "2", "2", "DDR4/LPDDR4…", "64-bit", "14 nm", "10 W", "Discontinued", "Q4'17", "Celeron J"],
+    ["J4105", "Celeron", "Mobile", "1.50 GHz", "", "4 MB", "", "4", "4", "DDR4/LPDDR4…", "64-bit", "14 nm", "10 W", "Discontinued", "Q4'17", "Celeron J"],
+    ["J4115", "Celeron", "Mobile", "1.80 GHz", "", "4 MB", "", "4", "4", "DDR4/LPDDR4…", "64-bit", "14 nm", "10 W", "Discontinued", "Q4'17", "Celeron J"],
+    ["J6412", "Celeron", "Embedded", "2.00 GHz", "", "4 MB", "", "4", "4", "4x32 LPDDR4…", "64-bit", "10 nm", "10 W", "Launched", "Q1'21", "Celeron J"],
+    ["J6413", "Celeron", "Embedded", "1.80 GHz", "", "1.5 MB", "", "4", "4", "4x32 LPDDR4…", "64-bit", "10 nm", "10 W", "Launched", "Q1'21", "Celeron J"],
+    ["J6426", "Pentium", "Embedded", "2.00 GHz", "", "1.5 MB", "", "4", "4", "4x32 LPDDR4…", "64-bit", "10 nm", "10 W", "Launched", "Q1'21", "Pentium J"],
+    ["M-5Y10", "Core", "Mobile", "800 MHz", "2.00 GHz", "4 MB", "", "2", "4", "LPDDR3 1333…", "64-bit", "14 nm", "4.5 W", "Discontinued", "Q3'14", "5th Gen M"],
+    ["M-5Y10a", "Core", "Mobile", "800 MHz", "2.00 GHz", "4 MB", "", "2", "4", "LPDDR3 1333…", "64-bit", "14 nm", "4.5 W", "Discontinued", "Q3'14", "5th Gen M"],
+    ["M-5Y10c", "Core", "Mobile", "800 MHz", "2.00 GHz", "4 MB", "", "2", "4", "LPDDR3 1333…", "64-bit", "14 nm", "4.5 W", "Discontinued", "Q4'14", "5th Gen M"],
+    ["M-5Y31", "Core", "Mobile", "900 MHz", "2.40 GHz", "4 MB", "", "2", "4", "LPDDR3 1333…", "64-bit", "14 nm", "4.5 W", "Discontinued", "Q4'14", "5th Gen M"],
+    ["M-5Y51", "Core", "Mobile", "1.10 GHz", "2.60 GHz", "4 MB", "", "2", "4", "LPDDR3 1333…", "64-bit", "14 nm", "4.5 W", "Discontinued", "Q4'14", "5th Gen M"],
+    ["M-5Y70", "Core", "Mobile", "1.10 GHz", "2.60 GHz", "4 MB", "5 GT/s", "2", "4", "DDR3L 1333/…", "64-bit", "14 nm", "4.5 W", "Discontinued", "Q3'14", "5th Gen M"],
+    ["M-5Y71", "Core", "Mobile", "1.20 GHz", "2.90 GHz", "4 MB", "", "2", "4", "LPDDR3 1333…", "64-bit", "14 nm", "4.5 W", "Discontinued", "Q4'14", "5th Gen M"],
+    ["N2807", "Celeron", "Mobile", "1.58 GHz", "", "1 MB", "", "2", "2", "DDR3L 1333", "64-bit", "22 nm", "4.3 W", "Launched", "Q1'14", "Celeron N"],
+    ["N2920", "Celeron", "Mobile", "1.86 GHz", "", "2 MB", "", "4", "4", "DDR3L 1066", "64-bit", "22 nm", "7.5 W", "Discontinued", "Q4'13", "Celeron N"],
+    ["N2930", "Celeron", "Mobile", "1.83 GHz", "", "2 MB", "", "4", "4", "DDR3L 1333", "64-bit", "22 nm", "7.5 W", "Launched", "Q1'14", "Celeron N"],
+    ["N3010", "Celeron", "Mobile", "1.04 GHz", "", "2 MB", "", "2", "2", "DDR3L-1600", "64-bit", "14 nm", "4 W", "Launched", "Q1'16", "Celeron N"],
+    ["N3060", "Celeron", "Mobile", "1.60 GHz", "", "2 MB", "", "2", "2", "DDR3L-1600", "64-bit", "14 nm", "6 W", "Launched", "Q1'16", "Celeron N"],
+    ["N3160", "Celeron", "Mobile", "1.60 GHz", "", "2 MB", "", "4", "4", "DDR3L-1600", "64-bit", "14 nm", "6 W", "Launched", "Q1'16", "Celeron N"],
+    ["N3350", "Celeron", "Mobile", "1.10 GHz", "", "2 MB", "", "2", "2", "DDR3L/LPDDR…", "64-bit", "14 nm", "6 W", "Launched", "Q3'16", "Celeron N"],
+    ["N3710", "Pentium", "Mobile", "1.60 GHz", "", "2 MB", "", "4", "4", "DDR3L-1600", "64-bit", "14 nm", "6 W", "Launched", "Q1'16", "Pentium N"],
+    ["N4000", "Celeron", "Mobile", "1.10 GHz", "", "4 MB", "", "2", "2", "DDR4/LPDDR4…", "64-bit", "14 nm", "6 W", "Discontinued", "Q4'17", "Celeron N"],
+    ["N4100", "Celeron", "Mobile", "1.10 GHz", "", "4 MB", "", "4", "4", "DDR4/LPDDR4…", "64-bit", "14 nm", "6 W", "Discontinued", "Q4'17", "Celeron N"],
+    ["N4200", "Pentium", "Mobile", "1.10 GHz", "", "2 MB", "", "4", "4", "DDR3L/LPDDR…", "64-bit", "14 nm", "6 W", "Launched", "Q3'16", "Pentium N"],
+    ["N6210", "Celeron", "Embedded", "1.20 GHz", "", "1.5 MB", "", "2", "2", "4x32 LPDDR4…", "64-bit", "10 nm", "6.5 W", "Launched", "Q1'21", "Celeron N"],
+    ["N6211", "Celeron", "Embedded", "1.20 GHz", "", "1.5 MB", "", "2", "2", "4x32 LPDDR4…", "64-bit", "10 nm", "6.5 W", "Launched", "Q1'21", "Celeron N"],
+    ["N6415", "Pentium", "Embedded", "1.20 GHz", "", "1.5 MB", "", "4", "4", "4x32 LPDDR4…", "64-bit", "10 nm", "6.5 W", "Launched", "Q1'21", "Pentium N"],
+    ["N95", "Processor", "Mobile", "", "3.40 GHz", "6 MB", "", "4", "4", "DDR4 3200 M…", "64-bit", "Intel 7", "15 W", "Launched", "Q1'23", "N-series"],
+    ["Platinum 8153", "Xeon", "Server", "2.00 GHz", "2.80 GHz", "22 MB", "", "16", "32", "DDR4-2666", "", "14 nm", "125 W", "Discontinued", "Q3'17", "Xeon"],
+    ["Platinum 8156", "Xeon", "Server", "3.60 GHz", "3.70 GHz", "16.5 MB", "", "4", "8", "DDR4-2666", "", "14 nm", "105 W", "Discontinued", "Q3'17", "Xeon"],
+    ["Platinum 8158", "Xeon", "Server", "3.00 GHz", "3.70 GHz", "24.75 MB", "", "12", "24", "DDR4-2666", "", "14 nm", "150 W", "Discontinued", "Q3'17", "Xeon"],
+    ["Platinum 8160", "Xeon", "Server", "2.10 GHz", "3.70 GHz", "33 MB", "", "24", "48", "DDR4-2666", "", "14 nm", "150 W", "Discontinued", "Q3'17", "Xeon"],
+    ["Platinum 8160F", "Xeon", "Server", "2.10 GHz", "3.70 GHz", "33 MB", "", "24", "48", "DDR4-2666", "", "14 nm", "160 W", "Discontinued", "Q3'17", "Xeon"],
+    ["Platinum 8160T", "Xeon", "Server", "2.10 GHz", "3.70 GHz", "33 MB", "", "24", "48", "DDR4-2666", "", "14 nm", "150 W", "Launched", "Q3'17", "Xeon"],
+    ["Platinum 8164", "Xeon", "Server", "2.00 GHz", "3.70 GHz", "35.75 MB", "", "26", "52", "DDR4-2666", "", "14 nm", "150 W", "Discontinued", "Q3'17", "Xeon"],
+    ["Platinum 8168", "Xeon", "Server", "2.70 GHz", "3.70 GHz", "33 MB", "", "24", "48", "DDR4-2666", "", "14 nm", "205 W", "Discontinued", "Q3'17", "Xeon"],
+    ["Platinum 8170", "Xeon", "Server", "2.10 GHz", "3.70 GHz", "35.75 MB", "", "26", "52", "DDR4-2666", "", "14 nm", "165 W", "Discontinued", "Q3'17", "Xeon"],
+    ["Platinum 8171M", "Xeon", "Server", "2.10 GHz", "3.70 GHz", "35.75 MB", "", "26", "52", "DDR4-2666", "", "14 nm", "165 W", "Discontinued", "Q3'17", "Xeon"],
+    ["Platinum 8176", "Xeon", "Server", "2.10 GHz", "3.80 GHz", "38.5 MB", "", "28", "56", "DDR4-2666", "", "14 nm", "165 W", "Discontinued", "Q3'17", "Xeon"],
+    ["Platinum 8176F", "Xeon", "Server", "2.10 GHz", "3.80 GHz", "38.5 MB", "", "28", "56", "DDR4-2666", "", "14 nm", "173 W", "Discontinued", "Q3'17", "Xeon"],
+    ["Platinum 8180", "Xeon", "Server", "2.50 GHz", "3.80 GHz", "38.5 MB", "", "28", "56", "DDR4-2666", "", "14 nm", "205 W", "Discontinued", "Q3'17", "Xeon"],
+    ["Platinum 8253", "Xeon", "Server", "2.20 GHz", "3.00 GHz", "22 MB", "", "16", "32", "DDR4-2933", "", "14 nm", "125 W", "Discontinued", "Q2'19", "2nd Gen Xeon"],
+    ["Platinum 8256", "Xeon", "Server", "3.80 GHz", "3.90 GHz", "16.5 MB", "", "4", "8", "DDR4-2933", "", "14 nm", "105 W", "Discontinued", "Q2'19", "2nd Gen Xeon"],
+    ["Platinum 8260", "Xeon", "Server", "2.40 GHz", "3.90 GHz", "35.75 MB", "", "24", "48", "DDR4-2933", "", "14 nm", "165 W", "Launched", "Q2'19", "2nd Gen Xeon"],
+    ["Platinum 8260L", "Xeon", "Server", "2.40 GHz", "3.90 GHz", "35.75 MB", "", "24", "48", "DDR4-2933", "", "14 nm", "165 W", "Discontinued", "Q2'19", "2nd Gen Xeon"],
+    ["Platinum 8260M", "Xeon", "Server", "2.40 GHz", "3.90 GHz", "35.75 MB", "", "24", "48", "DDR4-2933", "", "14 nm", "165 W", "Launched", "Q2'19", "2nd Gen Xeon"],
+    ["Platinum 8260Y", "Xeon", "Server", "2.40 GHz", "3.90 GHz", "35.75 MB", "", "24", "48", "DDR4-2933", "", "14 nm", "165 W", "Discontinued", "Q2'19", "2nd Gen Xeon"],
+    ["Platinum 8268", "Xeon", "Server", "2.90 GHz", "3.90 GHz", "35.75 MB", "", "24", "48", "DDR4-2933", "", "14 nm", "205 W", "Discontinued", "Q2'19", "2nd Gen Xeon"],
+    ["Platinum 8270", "Xeon", "Server", "2.70 GHz", "4.00 GHz", "35.75 MB", "", "26", "52", "DDR4-2933", "", "14 nm", "205 W", "Discontinued", "Q2'19", "2nd Gen Xeon"],
+    ["Platinum 8272CL", "Xeon", "Server", "2.70 GHz", "4.00 GHz", "35.75 MB", "", "26", "52", "DDR4-2933", "", "14 nm", "205 W", "Discontinued", "Q2'19", "2nd Gen Xeon"],
+    ["Platinum 8276", "Xeon", "Server", "2.20 GHz", "4.00 GHz", "38.5 MB", "", "28", "56", "DDR4-2933", "", "14 nm", "165 W", "Discontinued", "Q2'19", "2nd Gen Xeon"],
+    ["Platinum 8276L", "Xeon", "Server", "2.20 GHz", "4.00 GHz", "38.5 MB", "", "28", "56", "DDR4-2933", "", "14 nm", "165 W", "Discontinued", "Q2'19", "2nd Gen Xeon"],
+    ["Platinum 8276M", "Xeon", "Server", "2.20 GHz", "4.00 GHz", "38.5 MB", "", "28", "56", "DDR4-2933", "", "14 nm", "165 W", "Discontinued", "Q2'19", "2nd Gen Xeon"],
+    ["Platinum 8280", "Xeon", "Server", "2.70 GHz", "4.00 GHz", "38.5 MB", "", "28", "56", "DDR4-2933", "", "14 nm", "205 W", "Discontinued", "Q2'19", "2nd Gen Xeon"],
+    ["Platinum 8280L", "Xeon", "Server", "2.70 GHz", "4.00 GHz", "38.5 MB", "", "28", "56", "DDR4-2933", "", "14 nm", "205 W", "Discontinued", "Q2'19", "2nd Gen Xeon"],
+    ["Platinum 8280M", "Xeon", "Server", "2.70 GHz", "4.00 GHz", "38.5 MB", "", "28", "56", "DDR4-2933", "", "14 nm", "205 W", "Discontinued", "Q2'19", "2nd Gen Xeon"],
+    ["Platinum 8452Y", "Xeon", "Server", "2.00 GHz", "3.20 GHz", "67.5 MB", "", "36", "72", "Up to DDR5 …", "", "Intel 7", "300 W", "Launched", "Q1'23", "4th Gen Xeon"],
+    ["Platinum 8460Y+", "Xeon", "Server", "2.00 GHz", "3.70 GHz", "105 MB", "", "40", "80", "Up to DDR5 …", "", "Intel 7", "300 W", "Launched", "Q1'23", "4th Gen Xeon"],
+    ["Platinum 8468", "Xeon", "Server", "2.10 GHz", "3.80 GHz", "105 MB", "", "48", "96", "Up to DDR5 …", "", "Intel 7", "350 W", "Launched", "Q1'23", "4th Gen Xeon"],
+    ["Platinum 8470", "Xeon", "Server", "2.00 GHz", "3.80 GHz", "105 MB", "", "52", "104", "Up to DDR5 …", "", "Intel 7", "350 W", "Launched", "Q1'23", "4th Gen Xeon"],
+    ["Platinum 8480+", "Xeon", "Server", "2.00 GHz", "3.80 GHz", "105 MB", "", "56", "112", "Up to DDR5 …", "", "Intel 7", "350 W", "Launched", "Q1'23", "4th Gen Xeon"],
+    ["Platinum 8490H", "Xeon", "Server", "1.90 GHz", "3.50 GHz", "112.5 MB", "", "60", "120", "Up to DDR5 …", "", "Intel 7", "350 W", "Launched", "Q1'23", "4th Gen Xeon"],
+    ["Platinum 9221", "Xeon", "Server", "2.30 GHz", "3.70 GHz", "71.5 MB", "", "32", "64", "DDR4-2933", "", "14 nm", "250 W", "Discontinued", "Q3'19", "2nd Gen Xeon"],
+    ["Platinum 9222", "Xeon", "Server", "2.30 GHz", "3.70 GHz", "71.5 MB", "", "32", "64", "DDR4-2933", "", "14 nm", "250 W", "Discontinued", "Q3'19", "2nd Gen Xeon"],
+    ["Platinum 9242", "Xeon", "Server", "2.30 GHz", "3.80 GHz", "71.5 MB", "", "48", "96", "DDR4-2933", "", "14 nm", "350 W", "Discontinued", "Q2'19", "2nd Gen Xeon"],
+    ["Platinum 9282", "Xeon", "Server", "2.60 GHz", "3.80 GHz", "77 MB", "", "56", "112", "DDR4-2933", "", "14 nm", "400 W", "Discontinued", "Q2'19", "2nd Gen Xeon"],
+    ["Silver 4108", "Xeon", "Server", "1.80 GHz", "3.00 GHz", "11 MB", "", "8", "16", "DDR4-2400", "", "14 nm", "85 W", "Discontinued", "Q3'17", "Xeon"],
+    ["Silver 4109T", "Xeon", "Server", "2.00 GHz", "3.00 GHz", "11 MB", "", "8", "16", "DDR4-2400", "", "14 nm", "70 W", "Launched", "Q3'17", "Xeon"],
+    ["Silver 4110", "Xeon", "Server", "2.10 GHz", "3.00 GHz", "11 MB", "", "8", "16", "DDR4-2400", "", "14 nm", "85 W", "Launched", "Q3'17", "Xeon"],
+    ["Silver 4112", "Xeon", "Server", "2.60 GHz", "3.00 GHz", "8.25 MB", "", "4", "8", "DDR4-2400", "", "14 nm", "85 W", "Discontinued", "Q3'17", "Xeon"],
+    ["Silver 4114", "Xeon", "Server", "2.20 GHz", "3.00 GHz", "13.75 MB", "", "10", "20", "DDR4-2400", "", "14 nm", "85 W", "Discontinued", "Q3'17", "Xeon"],
+    ["Silver 4114T", "Xeon", "Server", "2.20 GHz", "3.00 GHz", "13.75 MB", "", "10", "20", "DDR4-2400", "", "14 nm", "85 W", "Launched", "Q3'17", "Xeon"],
+    ["Silver 4116", "Xeon", "Server", "2.10 GHz", "3.00 GHz", "16.5 MB", "", "12", "24", "DDR4-2400", "", "14 nm", "85 W", "Launched", "Q3'17", "Xeon"],
+    ["Silver 4116T", "Xeon", "Server", "2.10 GHz", "3.00 GHz", "16.5 MB", "", "12", "24", "DDR4-2400", "", "14 nm", "85 W", "Launched", "Q3'17", "Xeon"],
+    ["Silver 4208", "Xeon", "Server", "2.10 GHz", "3.20 GHz", "11 MB", "", "8", "16", "DDR4-2400", "", "14 nm", "85 W", "Discontinued", "Q2'19", "2nd Gen Xeon"],
+    ["Silver 4209T", "Xeon", "Server", "2.20 GHz", "3.20 GHz", "11 MB", "", "8", "16", "DDR4-2400", "", "14 nm", "70 W", "Launched", "Q2'19", "2nd Gen Xeon"],
+    ["Silver 4210", "Xeon", "Server", "2.20 GHz", "3.20 GHz", "13.75 MB", "", "10", "20", "DDR4-2400", "", "14 nm", "85 W", "Launched", "Q2'19", "2nd Gen Xeon"],
+    ["Silver 4210R", "Xeon", "Server", "2.40 GHz", "3.20 GHz", "13.75 MB", "", "10", "20", "DDR4-2400", "", "14 nm", "100 W", "Launched", "Q1'20", "2nd Gen Xeon"],
+    ["Silver 4210T", "Xeon", "Server", "2.30 GHz", "3.20 GHz", "13.75 MB", "", "10", "20", "DDR4-2400", "", "14 nm", "95 W", "Launched", "Q1'20", "2nd Gen Xeon"],
+    ["Silver 4214", "Xeon", "Server", "2.20 GHz", "3.20 GHz", "16.5 MB", "", "12", "24", "DDR4-2400", "", "14 nm", "85 W", "Launched", "Q2'19", "2nd Gen Xeon"],
+    ["Silver 4214R", "Xeon", "Server", "2.40 GHz", "3.50 GHz", "16.5 MB", "", "12", "24", "DDR4-2400", "", "14 nm", "100 W", "Launched", "Q1'20", "2nd Gen Xeon"],
+    ["Silver 4214Y", "Xeon", "Server", "2.20 GHz", "3.20 GHz", "16.5 MB", "", "12", "24", "DDR4-2400", "", "14 nm", "85 W", "Discontinued", "Q2'19", "2nd Gen Xeon"],
+    ["Silver 4215", "Xeon", "Server", "2.50 GHz", "3.50 GHz", "11 MB", "", "8", "16", "DDR4-2400", "", "14 nm", "85 W", "Launched", "Q2'19", "2nd Gen Xeon"],
+    ["Silver 4215R", "Xeon", "Server", "3.20 GHz", "4.00 GHz", "11 MB", "", "8", "16", "DDR4-2400", "", "14 nm", "130 W", "Launched", "Q1'20", "2nd Gen Xeon"],
+    ["Silver 4216", "Xeon", "Server", "2.10 GHz", "3.20 GHz", "22 MB", "", "16", "32", "DDR4-2400", "", "14 nm", "100 W", "Launched", "Q2'19", "2nd Gen Xeon"],
+    ["Silver 4410T", "Xeon", "Server", "2.70 GHz", "4.00 GHz", "26.25 MB", "", "10", "20", "Up to DDR5 …", "", "Intel 7", "150 W", "Launched", "Q1'23", "4th Gen Xeon"],
+    ["Silver 4410Y", "Xeon", "Server", "2.00 GHz", "3.90 GHz", "30 MB", "", "12", "24", "Up to DDR5 …", "", "Intel 7", "150 W", "Launched", "Q1'23", "4th Gen Xeon"],
+    ["Silver 4416+", "Xeon", "Server", "2.00 GHz", "3.90 GHz", "37.5 MB", "", "20", "40", "Up to DDR5 …", "", "Intel 7", "165 W", "Launched", "Q1'23", "4th Gen Xeon"],
+    ["Silver J5005", "Pentium", "Mobile", "1.50 GHz", "", "4 MB", "", "4", "4", "DDR4/LPDDR4…", "64-bit", "14 nm", "10 W", "Discontinued", "Q4'17", "Pentium Silver"],
+    ["Silver J5040", "Pentium", "Mobile", "2.00 GHz", "", "4 MB", "", "4", "4", "DDR4/LPDDR4…", "64-bit", "14 nm", "10 W", "Discontinued", "Q4'19", "Pentium Silver"],
+    ["Silver N5000", "Pentium", "Mobile", "1.10 GHz", "", "4 MB", "", "4", "4", "DDR4/LPDDR4…", "64-bit", "14 nm", "6 W", "Discontinued", "Q4'17", "Pentium Silver"],
+    ["Silver N5030", "Pentium", "Mobile", "1.10 GHz", "", "4 MB", "", "4", "4", "DDR4/LPDDR4…", "64-bit", "14 nm", "6 W", "Discontinued", "Q4'19", "Pentium Silver"],
+    ["Ultra 5 125H", "Core", "Mobile", "", "4.5 GHz", "18 MB", "", "14", "18", "Up to LPDDR…", "64-bit", "Intel 4", "", "Launched", "Q4'23", "Ultra (Series 1)"],
+    ["Ultra 5 125U", "Core", "Mobile", "", "4.3 GHz", "12 MB", "", "12", "14", "Up to LPDDR…", "64-bit", "Intel 4", "", "Launched", "Q4'23", "Ultra (Series 1)"],
+    ["Ultra 5 134U", "Core", "Mobile", "", "4.4 GHz", "12 MB", "", "12", "14", "Up to LPDDR…", "64-bit", "Intel 4", "", "Launched", "Q4'23", "Ultra (Series 1)"],
+    ["Ultra 5 135H", "Core", "Mobile", "", "4.6 GHz", "18 MB", "", "14", "18", "Up to LPDDR…", "64-bit", "Intel 4", "", "Launched", "Q4'23", "Ultra (Series 1)"],
+    ["Ultra 5 135U", "Core", "Mobile", "", "4.4 GHz", "12 MB", "", "12", "14", "Up to LPDDR…", "64-bit", "Intel 4", "", "Launched", "Q4'23", "Ultra (Series 1)"],
+    ["Ultra 5-125H", "Core", "Mobile", "", "4.5 GHz", "18 MB", "", "14", "18", "Up to LPDDR…", "64-bit", "Intel 4", "", "Launched", "Q4'23", "Ultra (Series 1)"],
+    ["Ultra 5-125U", "Core", "Mobile", "", "4.3 GHz", "12 MB", "", "12", "14", "Up to LPDDR…", "64-bit", "Intel 4", "", "Launched", "Q4'23", "Ultra (Series 1)"],
+    ["Ultra 5-134U", "Core", "Mobile", "", "4.4 GHz", "12 MB", "", "12", "14", "Up to LPDDR…", "64-bit", "Intel 4", "", "Launched", "Q4'23", "Ultra (Series 1)"],
+    ["Ultra 5-135H", "Core", "Mobile", "", "4.6 GHz", "18 MB", "", "14", "18", "Up to LPDDR…", "64-bit", "Intel 4", "", "Launched", "Q4'23", "Ultra (Series 1)"],
+    ["Ultra 5-135U", "Core", "Mobile", "", "4.4 GHz", "12 MB", "", "12", "14", "Up to LPDDR…", "64-bit", "Intel 4", "", "Launched", "Q4'23", "Ultra (Series 1)"],
+    ["Ultra 7 155H", "Core", "Mobile", "", "4.8 GHz", "24 MB", "", "16", "22", "Up to LPDDR…", "64-bit", "Intel 4", "", "Launched", "Q4'23", "Ultra (Series 1)"],
+    ["Ultra 7 155U", "Core", "Mobile", "", "4.8 GHz", "12 MB", "", "12", "14", "Up to LPDDR…", "64-bit", "Intel 4", "", "Launched", "Q4'23", "Ultra (Series 1)"],
+    ["Ultra 7 164U", "Core", "Mobile", "", "4.8 GHz", "12 MB", "", "12", "14", "Up to LPDDR…", "64-bit", "Intel 4", "", "Launched", "Q4'23", "Ultra (Series 1)"],
+    ["Ultra 7 165H", "Core", "Mobile", "", "5 GHz", "24 MB", "", "16", "22", "Up to LPDDR…", "64-bit", "Intel 4", "", "Launched", "Q4'23", "Ultra (Series 1)"],
+    ["Ultra 7 165U", "Core", "Mobile", "", "4.9 GHz", "12 MB", "", "12", "14", "Up to LPDDR…", "64-bit", "Intel 4", "", "Launched", "Q4'23", "Ultra (Series 1)"],
+    ["Ultra 7-155H", "Core", "Mobile", "", "4.8 GHz", "24 MB", "", "16", "22", "Up to LPDDR…", "64-bit", "Intel 4", "", "Launched", "Q4'23", "Ultra (Series 1)"],
+    ["Ultra 7-155U", "Core", "Mobile", "", "4.8 GHz", "12 MB", "", "12", "14", "Up to LPDDR…", "64-bit", "Intel 4", "", "Launched", "Q4'23", "Ultra (Series 1)"],
+    ["Ultra 7-164U", "Core", "Mobile", "", "4.8 GHz", "12 MB", "", "12", "14", "Up to LPDDR…", "64-bit", "Intel 4", "", "Launched", "Q4'23", "Ultra (Series 1)"],
+    ["Ultra 7-165H", "Core", "Mobile", "", "5 GHz", "24 MB", "", "16", "22", "Up to LPDDR…", "64-bit", "Intel 4", "", "Launched", "Q4'23", "Ultra (Series 1)"],
+    ["Ultra 7-165U", "Core", "Mobile", "", "4.9 GHz", "12 MB", "", "12", "14", "Up to LPDDR…", "64-bit", "Intel 4", "", "Launched", "Q4'23", "Ultra (Series 1)"],
+    ["Ultra 9 185H", "Core", "Mobile", "", "5.1 GHz", "24 MB", "", "16", "22", "Up to LPDDR…", "64-bit", "Intel 4", "", "Launched", "Q4'23", "Ultra (Series 1)"],
+    ["Ultra 9-185H", "Core", "Mobile", "", "5.1 GHz", "24 MB", "", "16", "22", "Up to LPDDR…", "64-bit", "Intel 4", "", "Launched", "Q4'23", "Ultra (Series 1)"],
+    ["W-11055M", "Xeon", "Mobile", "", "4.90 GHz", "18 MB", "8 GT/s", "6", "12", "Up to 3200 …", "64-bit", "10 nm", "", "Discontinued", "Q2'21", "Xeon W"],
+    ["W-2104", "Xeon", "Server", "3.20 GHz", "", "8.25 MB", "0 GT/s", "4", "4", "DDR4 1600/1…", "64-bit", "14 nm", "120 W", "Discontinued", "Q3'17", "Xeon W"],
+    ["W-2123", "Xeon", "Server", "3.60 GHz", "3.90 GHz", "8.25 MB", "8 GT/s", "4", "8", "DDR4 1600/1…", "64-bit", "14 nm", "120 W", "Discontinued", "Q3'17", "Xeon W"],
+    ["W-2125", "Xeon", "Server", "4.00 GHz", "4.50 GHz", "8.25 MB", "8 GT/s", "4", "8", "DDR4 1600/1…", "64-bit", "14 nm", "120 W", "Discontinued", "Q3'17", "Xeon W"],
+    ["W-2133", "Xeon", "Server", "3.60 GHz", "3.90 GHz", "8.25 MB", "8 GT/s", "6", "12", "DDR4 1600/1…", "64-bit", "14 nm", "140 W", "Discontinued", "Q3'17", "Xeon W"],
+    ["W-2135", "Xeon", "Server", "3.70 GHz", "4.50 GHz", "8.25 MB", "8 GT/s", "6", "12", "DDR4 1600/1…", "64-bit", "14 nm", "140 W", "Discontinued", "Q3'17", "Xeon W"],
+    ["W-2145", "Xeon", "Server", "3.70 GHz", "4.50 GHz", "11 MB", "8 GT/s", "8", "16", "DDR4 1600/1…", "64-bit", "14 nm", "140 W", "Discontinued", "Q3'17", "Xeon W"],
+    ["W-2155", "Xeon", "Server", "3.30 GHz", "4.50 GHz", "13.75 MB", "8 GT/s", "10", "20", "DDR4 1600/1…", "64-bit", "14 nm", "140 W", "Discontinued", "Q3'17", "Xeon W"],
+    ["W-2175", "Xeon", "Server", "2.50 GHz", "4.30 GHz", "19 MB", "8 GT/s", "14", "28", "DDR4 1600/1…", "64-bit", "14 nm", "140 W", "Discontinued", "Q3'17", "Xeon W"],
+    ["W-2195", "Xeon", "Server", "2.30 GHz", "4.30 GHz", "24.75 MB", "8 GT/s", "18", "36", "DDR4 1600/1…", "64-bit", "14 nm", "140 W", "Discontinued", "Q3'17", "Xeon W"],
+    ["W-2223", "Xeon", "Workstation", "3.60 GHz", "3.90 GHz", "8.25 MB", "8 GT/s", "4", "8", "DDR4 2666", "64-bit", "14 nm", "120 W", "Launched", "Q4'19", "Xeon W"],
+    ["W-2225", "Xeon", "Workstation", "4.10 GHz", "4.60 GHz", "8.25 MB", "8 GT/s", "4", "8", "DDR4 2933", "64-bit", "14 nm", "105 W", "Launched", "Q4'19", "Xeon W"],
+    ["W-2235", "Xeon", "Workstation", "3.80 GHz", "4.60 GHz", "8.25 MB", "8 GT/s", "6", "12", "DDR4 2933", "64-bit", "14 nm", "130 W", "Launched", "Q4'19", "Xeon W"],
+    ["W-2245", "Xeon", "Workstation", "3.90 GHz", "4.50 GHz", "16.5 MB", "8 GT/s", "8", "16", "DDR4 2933", "64-bit", "14 nm", "155 W", "Launched", "Q4'19", "Xeon W"],
+    ["W-2255", "Xeon", "Workstation", "3.70 GHz", "4.50 GHz", "19.25 MB", "8 GT/s", "10", "20", "DDR4 2933", "64-bit", "14 nm", "165 W", "Launched", "Q4'19", "Xeon W"],
+    ["W-2265", "Xeon", "Workstation", "3.50 GHz", "4.60 GHz", "19.25 MB", "8 GT/s", "12", "24", "DDR4 2933", "64-bit", "14 nm", "165 W", "Launched", "Q4'19", "Xeon W"],
+    ["W-2275", "Xeon", "Workstation", "3.30 GHz", "4.60 GHz", "19.25 MB", "8 GT/s", "14", "28", "DDR4 2933", "64-bit", "14 nm", "165 W", "Launched", "Q4'19", "Xeon W"],
+    ["W-2295", "Xeon", "Workstation", "3.00 GHz", "4.60 GHz", "24.75 MB", "8 GT/s", "18", "36", "DDR4 2933", "64-bit", "14 nm", "165 W", "Launched", "Q4'19", "Xeon W"],
+    ["W-3175X", "Xeon", "Desktop", "3.10 GHz", "3.80 GHz", "38.5 MB", "8 GT/s", "28", "56", "DDR4-2666", "", "14 nm", "255 W", "Discontinued", "Q4'18", "Xeon W"],
+    ["W-3223", "Xeon", "Workstation", "3.50 GHz", "4.00 GHz", "16.5 MB", "8 GT/s", "8", "16", "DDR4-2666", "", "14 nm", "160 W", "Launched", "Q2'19", "Xeon W"],
+    ["W-3225", "Xeon", "Workstation", "3.70 GHz", "4.30 GHz", "16.5 MB", "8 GT/s", "8", "16", "DDR4-2666", "", "14 nm", "160 W", "Launched", "Q2'19", "Xeon W"],
+    ["W-3235", "Xeon", "Workstation", "3.30 GHz", "4.40 GHz", "19.25 MB", "8 GT/s", "12", "24", "DDR4-2933", "", "14 nm", "180 W", "Launched", "Q2'19", "Xeon W"],
+    ["W-3245", "Xeon", "Workstation", "3.20 GHz", "4.40 GHz", "22 MB", "8 GT/s", "16", "32", "DDR4-2933", "", "14 nm", "205 W", "Launched", "Q2'19", "Xeon W"],
+    ["W-3245M", "Xeon", "Workstation", "3.20 GHz", "4.40 GHz", "22 MB", "8 GT/s", "16", "32", "DDR4-2933", "", "14 nm", "205 W", "Launched", "Q2'19", "Xeon W"],
+    ["W-3265", "Xeon", "Workstation", "2.70 GHz", "4.40 GHz", "33 MB", "8 GT/s", "24", "48", "DDR4-2933", "", "14 nm", "205 W", "Launched", "Q2'19", "Xeon W"],
+    ["W-3265M", "Xeon", "Workstation", "2.70 GHz", "4.40 GHz", "33 MB", "8 GT/s", "24", "48", "DDR4-2933", "", "14 nm", "205 W", "Launched", "Q2'19", "Xeon W"],
+    ["W-3275", "Xeon", "Workstation", "2.50 GHz", "4.40 GHz", "38.5 MB", "8 GT/s", "28", "56", "DDR4-2933", "", "14 nm", "205 W", "Launched", "Q2'19", "Xeon W"],
+    ["W-3275M", "Xeon", "Workstation", "2.50 GHz", "4.40 GHz", "38.5 MB", "8 GT/s", "28", "56", "DDR4-2933", "", "14 nm", "205 W", "Launched", "Q2'19", "Xeon W"],
+    ["W3-2423", "Xeon", "Workstation", "2.10 GHz", "4.20 GHz", "15 MB", "", "6", "12", "DDR5-4400 (…", "64-bit", "Intel 7", "", "Launched", "Q1'23", "Xeon W"],
+    ["W3-2425", "Xeon", "Workstation", "3.00 GHz", "4.40 GHz", "15 MB", "", "6", "12", "DDR5-4400 (…", "64-bit", "Intel 7", "", "Launched", "Q1'23", "Xeon W"],
+    ["W3-2435", "Xeon", "Workstation", "3.10 GHz", "4.50 GHz", "22.5 MB", "", "8", "16", "DDR5-4400 (…", "64-bit", "Intel 7", "", "Launched", "Q1'23", "Xeon W"],
+    ["W5-2445", "Xeon", "Workstation", "3.10 GHz", "4.60 GHz", "26.25 MB", "", "10", "20", "DDR5-4800 (…", "64-bit", "Intel 7", "", "Launched", "Q1'23", "Xeon W"],
+    ["W5-2455X", "Xeon", "Workstation", "3.20 GHz", "4.60 GHz", "30 MB", "", "12", "24", "DDR5-4800 (…", "64-bit", "Intel 7", "", "Launched", "Q1'23", "Xeon W"],
+    ["W5-2465X", "Xeon", "Workstation", "3.10 GHz", "4.70 GHz", "33.75 MB", "", "16", "32", "DDR5-4800 (…", "64-bit", "Intel 7", "", "Launched", "Q1'23", "Xeon W"],
+    ["W5-3423", "Xeon", "Workstation", "2.10 GHz", "4.20 GHz", "30 MB", "", "12", "24", "DDR5-4400 (…", "64-bit", "Intel 7", "", "Launched", "Q1'23", "Xeon W"],
+    ["W5-3425", "Xeon", "Workstation", "3.20 GHz", "4.60 GHz", "30 MB", "", "12", "24", "DDR5-4800 (…", "64-bit", "Intel 7", "", "Launched", "Q1'23", "Xeon W"],
+    ["W5-3433", "Xeon", "Workstation", "2.00 GHz", "4.20 GHz", "45 MB", "", "16", "32", "DDR5-4400 (…", "64-bit", "Intel 7", "", "Launched", "Q1'23", "Xeon W"],
+    ["W5-3435X", "Xeon", "Workstation", "3.10 GHz", "4.70 GHz", "45 MB", "", "16", "32", "DDR5-4800 (…", "64-bit", "Intel 7", "", "Launched", "Q1'23", "Xeon W"],
+    ["W7-2475X", "Xeon", "Workstation", "2.60 GHz", "4.80 GHz", "37.5 MB", "", "20", "40", "DDR5-4800 (…", "64-bit", "Intel 7", "", "Launched", "Q1'23", "Xeon W"],
+    ["W7-2495X", "Xeon", "Workstation", "2.50 GHz", "4.80 GHz", "45 MB", "", "24", "48", "DDR5-4800 (…", "64-bit", "Intel 7", "", "Launched", "Q1'23", "Xeon W"],
+    ["W7-3445", "Xeon", "Workstation", "2.60 GHz", "4.80 GHz", "52.5 MB", "", "20", "40", "DDR5-4800 (…", "64-bit", "Intel 7", "", "Launched", "Q1'23", "Xeon W"],
+    ["W7-3455", "Xeon", "Workstation", "2.50 GHz", "4.80 GHz", "67.5 MB", "", "24", "48", "DDR5-4800 (…", "64-bit", "Intel 7", "", "Launched", "Q1'23", "Xeon W"],
+    ["W7-3465X", "Xeon", "Workstation", "2.50 GHz", "4.80 GHz", "75 MB", "", "28", "56", "DDR5-4800 (…", "64-bit", "Intel 7", "", "Launched", "Q1'23", "Xeon W"],
+    ["W9-3495X", "Xeon", "Workstation", "1.90 GHz", "4.80 GHz", "105 MB", "", "56", "112", "DDR5-4800 (…", "64-bit", "Intel 7", "", "Launched", "Q1'23", "Xeon W"],
+    ["i3-1000G1", "Core", "Mobile", "1.10 GHz", "3.20 GHz", "4 MB", "4 GT/s", "2", "4", "LPDDR4-3733", "64-bit", "10 nm", "9 W", "Discontinued", "Q3'19", "10th Gen i3"],
+    ["i3-1000G4", "Core", "Mobile", "1.10 GHz", "3.20 GHz", "4 MB", "4 GT/s", "2", "4", "LPDDR4-3733", "64-bit", "10 nm", "9 W", "Discontinued", "Q3'19", "10th Gen i3"],
+    ["i3-1115G4E", "Core", "Embedded", "2.20 GHz", "3.90 GHz", "6 MB", "4 GT/s", "2", "4", "DDR4-3200, …", "64-bit", "10 nm", "15 W", "Launched", "Q3'20", "11th Gen i3"],
+    ["i3-14100", "Core", "Desktop", "", "4.7 GHz", "12 MB", "", "4", "8", "Up to DDR5 …", "64-bit", "Intel 7", "", "Launched", "Q1'24", "i3 (14th gen)"],
+    ["i3-14100F", "Core", "Desktop", "", "4.7 GHz", "12 MB", "", "4", "8", "Up to DDR5 …", "64-bit", "Intel 7", "", "Launched", "Q1'24", "i3 (14th gen)"],
+    ["i3-14100T", "Core", "Desktop", "", "4.4 GHz", "12 MB", "", "4", "8", "Up to DDR5 …", "64-bit", "Intel 7", "", "Launched", "Q1'24", "i3 (14th gen)"],
+    ["i3-5005U", "Core", "Mobile", "2.00 GHz", "", "3 MB", "5 GT/s", "2", "4", "DDR3L 1333/…", "64-bit", "14 nm", "15 W", "Discontinued", "Q1'15", "5th Gen i3"],
+    ["i3-5010U", "Core", "Mobile", "2.10 GHz", "", "3 MB", "5 GT/s", "2", "4", "DDR3L 1333/…", "64-bit", "14 nm", "15 W", "Discontinued", "Q1'15", "5th Gen i3"],
+    ["i3-5015U", "Core", "Mobile", "2.10 GHz", "", "3 MB", "5 GT/s", "2", "4", "DDR3L 1333/…", "64-bit", "14 nm", "15 W", "Discontinued", "Q1'15", "5th Gen i3"],
+    ["i3-5020U", "Core", "Mobile", "2.20 GHz", "", "3 MB", "5 GT/s", "2", "4", "DDR3L 1333/…", "64-bit", "14 nm", "15 W", "Discontinued", "Q1'15", "5th Gen i3"],
+    ["i3-5157U", "Core", "Mobile", "2.50 GHz", "", "3 MB", "5 GT/s", "2", "4", "DDR3L 1333/…", "64-bit", "14 nm", "28 W", "Discontinued", "Q1'15", "5th Gen i3"],
+    ["i3-6006U", "Core", "Mobile", "2.00 GHz", "", "3 MB", "4 GT/s", "2", "4", "DDR4-2133, …", "64-bit", "14 nm", "15 W", "Discontinued", "Q4'16", "6th Gen i3"],
+    ["i3-6098P", "Core", "Desktop", "3.60 GHz", "", "3 MB", "8 GT/s", "2", "4", "DDR4-1866/2…", "64-bit", "14 nm", "54 W", "Discontinued", "Q4'15", "6th Gen i3"],
+    ["i3-6100", "Core", "Desktop", "3.70 GHz", "", "3 MB", "8 GT/s", "2", "4", "DDR4-1866/2…", "64-bit", "14 nm", "51 W", "Launched", "Q3'15", "6th Gen i3"],
+    ["i3-6100E", "Core", "Embedded", "2.70 GHz", "", "3 MB", "8 GT/s", "2", "4", "DDR4-2133, …", "64-bit", "14 nm", "35 W", "Launched", "Q4'15", "6th Gen i3"],
+    ["i3-6100H", "Core", "Mobile", "2.70 GHz", "", "3 MB", "8 GT/s", "2", "4", "DDR4-2133, …", "64-bit", "14 nm", "35 W", "Discontinued", "Q3'15", "6th Gen i3"],
+    ["i3-6100T", "Core", "Desktop", "3.20 GHz", "", "3 MB", "8 GT/s", "2", "4", "DDR4-1866/2…", "64-bit", "14 nm", "35 W", "Discontinued", "Q3'15", "6th Gen i3"],
+    ["i3-6100TE", "Core", "Embedded", "2.70 GHz", "", "4 MB", "8 GT/s", "2", "4", "DDR4-1866/2…", "64-bit", "14 nm", "35 W", "Launched", "Q4'15", "6th Gen i3"],
+    ["i3-6100U", "Core", "Mobile", "2.30 GHz", "", "3 MB", "4 GT/s", "2", "4", "DDR4-2133, …", "64-bit", "14 nm", "15 W", "Launched", "Q3'15", "6th Gen i3"],
+    ["i3-6102E", "Core", "Embedded", "1.90 GHz", "", "3 MB", "8 GT/s", "2", "4", "DDR4-2133, …", "64-bit", "14 nm", "25 W", "Launched", "Q4'15", "6th Gen i3"],
+    ["i3-6157U", "Core", "Mobile", "2.40 GHz", "", "3 MB", "4 GT/s", "2", "4", "DDR4-2133, …", "64-bit", "14 nm", "28 W", "Discontinued", "Q3'16", "6th Gen i3"],
+    ["i3-6167U", "Core", "Mobile", "2.70 GHz", "", "3 MB", "4 GT/s", "2", "4", "DDR4-2133, …", "64-bit", "14 nm", "28 W", "Discontinued", "Q3'15", "6th Gen i3"],
+    ["i3-6300", "Core", "Desktop", "3.80 GHz", "", "4 MB", "8 GT/s", "2", "4", "DDR4-1866/2…", "64-bit", "14 nm", "51 W", "Discontinued", "Q3'15", "6th Gen i3"],
+    ["i3-6300T", "Core", "Desktop", "3.30 GHz", "", "4 MB", "8 GT/s", "2", "4", "DDR4-1866/2…", "64-bit", "14 nm", "35 W", "Discontinued", "Q3'15", "6th Gen i3"],
+    ["i3-6320", "Core", "Desktop", "3.90 GHz", "", "4 MB", "8 GT/s", "2", "4", "DDR4-1866/2…", "64-bit", "14 nm", "51 W", "Discontinued", "Q3'15", "6th Gen i3"],
+    ["i3-7020U", "Core", "Mobile", "2.30 GHz", "", "3 MB", "4 GT/s", "2", "4", "DDR4-2133, …", "64-bit", "14 nm", "15 W", "Discontinued", "Q2'18", "7th Gen i3"],
+    ["i3-7100", "Core", "Desktop", "3.90 GHz", "", "3 MB", "8 GT/s", "2", "4", "DDR4-2133/2…", "64-bit", "14 nm", "51 W", "Discontinued", "Q1'17", "7th Gen i3"],
+    ["i3-7100E", "Core", "Embedded", "2.90 GHz", "", "3 MB", "", "2", "4", "DDR4-2400", "64-bit", "14 nm", "35 W", "Launched", "Q1'17", "7th Gen i3"],
+    ["i3-7100H", "Core", "Mobile", "3.00 GHz", "", "3 MB", "8 GT/s", "2", "4", "", "64-bit", "14 nm", "35 W", "Discontinued", "Q1'17", "7th Gen i3"],
+    ["i3-7100T", "Core", "Desktop", "3.40 GHz", "", "3 MB", "8 GT/s", "2", "4", "DDR4-2133/2…", "64-bit", "14 nm", "35 W", "Discontinued", "Q1'17", "7th Gen i3"],
+    ["i3-7100U", "Core", "Mobile", "2.40 GHz", "", "3 MB", "4 GT/s", "2", "4", "DDR4-2133, …", "64-bit", "14 nm", "15 W", "Launched", "Q3'16", "7th Gen i3"],
+    ["i3-7101E", "Core", "Desktop", "3.90 GHz", "", "3 MB", "", "2", "4", "DDR3L-1600,…", "64-bit", "14 nm", "54 W", "Launched", "Q1'17", "7th Gen i3"],
+    ["i3-7101TE", "Core", "Desktop", "3.40 GHz", "", "3 MB", "8 GT/s", "2", "4", "DDR3L-1600,…", "64-bit", "14 nm", "35 W", "Launched", "Q1'17", "7th Gen i3"],
+    ["i3-7102E", "Core", "Embedded", "2.10 GHz", "", "3 MB", "", "2", "4", "DDR4-2400", "64-bit", "14 nm", "25 W", "Launched", "Q1'17", "7th Gen i3"],
+    ["i3-7130U", "Core", "Mobile", "2.70 GHz", "", "3 MB", "4 GT/s", "2", "4", "DDR4-2133, …", "64-bit", "14 nm", "15 W", "Discontinued", "Q2'17", "7th Gen i3"],
+    ["i3-7167U", "Core", "Mobile", "2.80 GHz", "", "3 MB", "4 GT/s", "2", "4", "DDR4-2133, …", "64-bit", "14 nm", "28 W", "Discontinued", "Q1'17", "7th Gen i3"],
+    ["i3-7300", "Core", "Desktop", "4.00 GHz", "", "4 MB", "8 GT/s", "2", "4", "DDR4-2133/2…", "64-bit", "14 nm", "51 W", "Discontinued", "Q1'17", "7th Gen i3"],
+    ["i3-7300T", "Core", "Desktop", "3.50 GHz", "", "4 MB", "8 GT/s", "2", "4", "DDR4-2133/2…", "64-bit", "14 nm", "35 W", "Discontinued", "Q1'17", "7th Gen i3"],
+    ["i3-7320", "Core", "Desktop", "4.10 GHz", "", "4 MB", "8 GT/s", "2", "4", "DDR4-2133/2…", "64-bit", "14 nm", "51 W", "Discontinued", "Q1'17", "7th Gen i3"],
+    ["i3-7350K", "Core", "Desktop", "4.20 GHz", "", "4 MB", "8 GT/s", "2", "4", "DDR4-2133/2…", "64-bit", "14 nm", "60 W", "Discontinued", "Q1'17", "7th Gen i3"],
+    ["i3-L13G4", "Core", "Mobile", "800 MHz", "2.80 GHz", "4 MB", "4 GT/s", "5", "5", "LPDDR4X 426…", "64-bit", "10 nm", "", "Discontinued", "Q2'20", "Legacy"],
+    ["i5-8400", "Core", "Desktop", "2.80 GHz", "4.00 GHz", "9 MB", "8 GT/s", "6", "6", "DDR4-2666", "64-bit", "14 nm", "65 W", "Discontinued", "Q4'17", "8th Gen i5"],
+    ["i5-8500", "Core", "Desktop", "3.00 GHz", "4.10 GHz", "9 MB", "8 GT/s", "6", "6", "DDR4-2666", "64-bit", "14 nm", "65 W", "Launched", "Q2'18", "8th Gen i5"],
+    ["i5-1030G4", "Core", "Mobile", "700 MHz", "3.50 GHz", "6 MB", "4 GT/s", "4", "8", "LPDDR4-3733", "64-bit", "10 nm", "9 W", "Discontinued", "Q3'19", "10th Gen i5"],
+    ["i5-1030G7", "Core", "Mobile", "800 MHz", "3.50 GHz", "6 MB", "4 GT/s", "4", "8", "LPDDR4-3733", "64-bit", "10 nm", "9 W", "Discontinued", "Q3'19", "10th Gen i5"],
+    ["i5-1038NG7", "Core", "Mobile", "2.00 GHz", "3.80 GHz", "6 MB", "4 GT/s", "4", "8", "DDR4-3200, …", "64-bit", "10 nm", "28 W", "Discontinued", "Q2'20", "10th Gen i5"],
+    ["i5-13490F", "Core", "Desktop", "", "4.80 GHz", "24 MB", "", "10", "16", "Up to DDR5 …", "64-bit", "Intel 7", "", "Launched", "Q1'23", "13th Gen i5"],
+    ["i5-14400", "Core", "Desktop", "", "4.7 GHz", "20 MB", "", "10", "16", "Up to DDR5 …", "64-bit", "Intel 7", "", "Launched", "Q1'24", "i5 (14th gen)"],
+    ["i5-14400F", "Core", "Desktop", "", "4.7 GHz", "20 MB", "", "10", "16", "Up to DDR5 …", "64-bit", "Intel 7", "", "Launched", "Q1'24", "i5 (14th gen)"],
+    ["i5-14400T", "Core", "Desktop", "", "4.5 GHz", "20 MB", "", "10", "16", "Up to DDR5 …", "64-bit", "Intel 7", "", "Launched", "Q1'24", "i5 (14th gen)"],
+    ["i5-14450HX", "Core", "Mobile", "", "4.8 GHz", "20 MB", "", "10", "16", "Up to DDR5 …", "64-bit", "Intel 7", "", "Launched", "Q1'24", "i5 (14th gen)"],
+    ["i5-14490F", "Core", "Desktop", "", "4.9 GHz", "24 MB", "", "10", "16", "Up to DDR5 …", "64-bit", "Intel 7", "", "Launched", "Q1'24", "i5 (14th gen)"],
+    ["i5-14500", "Core", "Desktop", "", "5 GHz", "24 MB", "", "14", "20", "Up to DDR5 …", "64-bit", "Intel 7", "", "Launched", "Q1'24", "i5 (14th gen)"],
+    ["i5-14500HX", "Core", "Mobile", "", "4.9 GHz", "24 MB", "", "14", "20", "Up to DDR5 …", "64-bit", "Intel 7", "", "Launched", "Q1'24", "i5 (14th gen)"],
+    ["i5-14500T", "Core", "Desktop", "", "4.8 GHz", "24 MB", "", "14", "20", "Up to DDR5 …", "64-bit", "Intel 7", "", "Launched", "Q1'24", "i5 (14th gen)"],
+    ["i5-14600", "Core", "Desktop", "", "5.2 GHz", "24 MB", "", "14", "20", "Up to DDR5 …", "64-bit", "Intel 7", "", "Launched", "Q1'24", "i5 (14th gen)"],
+    ["i5-14600K", "Core", "Desktop", "", "5.3 GHz", "24 MB", "", "14", "20", "Up to DDR5 …", "64-bit", "Intel 7", "", "Launched", "Q4'23", "i5 (14th gen)"],
+    ["i5-14600KF", "Core", "Desktop", "", "5.3 GHz", "24 MB", "", "14", "20", "Up to DDR5 …", "64-bit", "Intel 7", "", "Launched", "Q4'23", "i5 (14th gen)"],
+    ["i5-14600T", "Core", "Desktop", "", "5.1 GHz", "24 MB", "", "14", "20", "Up to DDR5 …", "64-bit", "Intel 7", "", "Launched", "Q1'24", "i5 (14th gen)"],
+    ["i5-5200U", "Core", "Mobile", "2.20 GHz", "2.70 GHz", "3 MB", "5 GT/s", "2", "4", "DDR3L 1333/…", "64-bit", "14 nm", "15 W", "Discontinued", "Q1'15", "5th Gen i5"],
+    ["i5-5250U", "Core", "Mobile", "1.60 GHz", "2.70 GHz", "3 MB", "5 GT/s", "2", "4", "DDR3L 1333/…", "64-bit", "14 nm", "15 W", "Discontinued", "Q1'15", "5th Gen i5"],
+    ["i5-5257U", "Core", "Mobile", "2.70 GHz", "3.10 GHz", "3 MB", "5 GT/s", "2", "4", "DDR3L 1333/…", "64-bit", "14 nm", "28 W", "Discontinued", "Q1'15", "5th Gen i5"],
+    ["i5-5287U", "Core", "Mobile", "2.90 GHz", "3.30 GHz", "3 MB", "5 GT/s", "2", "4", "DDR3L 1333/…", "64-bit", "14 nm", "28 W", "Discontinued", "Q1'15", "5th Gen i5"],
+    ["i5-5300U", "Core", "Mobile", "2.30 GHz", "2.90 GHz", "3 MB", "5 GT/s", "2", "4", "DDR3L 1333/…", "64-bit", "14 nm", "15 W", "Discontinued", "Q1'15", "5th Gen i5"],
+    ["i5-5350H", "Core", "Mobile", "3.10 GHz", "3.50 GHz", "4 MB", "5 GT/s", "2", "4", "DDR3L 1600/…", "64-bit", "14 nm", "47 W", "Discontinued", "Q2'15", "5th Gen i5"],
+    ["i5-5350U", "Core", "Mobile", "1.80 GHz", "2.90 GHz", "3 MB", "5 GT/s", "2", "4", "DDR3L 1333/…", "64-bit", "14 nm", "15 W", "Discontinued", "Q1'15", "5th Gen i5"],
+    ["i5-5575R", "Core", "Desktop", "2.80 GHz", "3.30 GHz", "4 MB", "5 GT/s", "4", "", "DDR3L-1333/…", "64-bit", "14 nm", "65 W", "Discontinued", "Q2'15", "5th Gen i5"],
+    ["i5-5675C", "Core", "Desktop", "3.10 GHz", "3.60 GHz", "4 MB", "5 GT/s", "4", "", "DDR3L-1333/…", "64-bit", "14 nm", "65 W", "Discontinued", "Q2'15", "5th Gen i5"],
+    ["i5-5675R", "Core", "Desktop", "3.10 GHz", "3.60 GHz", "4 MB", "5 GT/s", "4", "", "DDR3L-1333/…", "64-bit", "14 nm", "65 W", "Discontinued", "Q2'15", "5th Gen i5"],
+    ["i5-6200U", "Core", "Mobile", "2.30 GHz", "2.80 GHz", "3 MB", "4 GT/s", "2", "4", "DDR4-2133, …", "64-bit", "14 nm", "15 W", "Discontinued", "Q3'15", "6th Gen i5"],
+    ["i5-6260U", "Core", "Mobile", "1.80 GHz", "2.90 GHz", "4 MB", "4 GT/s", "2", "4", "DDR4-2133, …", "64-bit", "14 nm", "15 W", "Discontinued", "Q3'15", "6th Gen i5"],
+    ["i5-6267U", "Core", "Mobile", "2.90 GHz", "3.30 GHz", "4 MB", "4 GT/s", "2", "4", "DDR4-2133, …", "64-bit", "14 nm", "28 W", "Discontinued", "Q3'15", "6th Gen i5"],
+    ["i5-6287U", "Core", "Mobile", "3.10 GHz", "3.50 GHz", "4 MB", "4 GT/s", "2", "4", "DDR4-2133, …", "64-bit", "14 nm", "28 W", "Discontinued", "Q3'15", "6th Gen i5"],
+    ["i5-6300HQ", "Core", "Mobile", "2.30 GHz", "3.20 GHz", "6 MB", "8 GT/s", "4", "4", "DDR4-2133, …", "64-bit", "14 nm", "45 W", "Discontinued", "Q3'15", "6th Gen i5"],
+    ["i5-6300U", "Core", "Mobile", "2.40 GHz", "3.00 GHz", "3 MB", "4 GT/s", "2", "4", "DDR4-2133, …", "64-bit", "14 nm", "15 W", "Launched", "Q3'15", "6th Gen i5"],
+    ["i5-6350HQ", "Core", "Mobile", "2.30 GHz", "3.20 GHz", "6 MB", "8 GT/s", "4", "4", "DDR4-2133, …", "64-bit", "14 nm", "45 W", "Discontinued", "Q1'16", "6th Gen i5"],
+    ["i5-6360U", "Core", "Mobile", "2.00 GHz", "3.10 GHz", "4 MB", "4 GT/s", "2", "4", "DDR4-2133, …", "64-bit", "14 nm", "15 W", "Discontinued", "Q3'15", "6th Gen i5"],
+    ["i5-6400", "Core", "Desktop", "2.70 GHz", "3.30 GHz", "6 MB", "8 GT/s", "4", "4", "DDR4-1866/2…", "64-bit", "14 nm", "65 W", "Discontinued", "Q3'15", "6th Gen i5"],
+    ["i5-6400T", "Core", "Desktop", "2.20 GHz", "2.80 GHz", "6 MB", "8 GT/s", "4", "4", "DDR4-1866/2…", "64-bit", "14 nm", "35 W", "Discontinued", "Q3'15", "6th Gen i5"],
+    ["i5-6402P", "Core", "Desktop", "2.80 GHz", "3.40 GHz", "6 MB", "8 GT/s", "4", "4", "DDR4-1866/2…", "64-bit", "14 nm", "65 W", "Discontinued", "Q4'15", "6th Gen i5"],
+    ["i5-6440EQ", "Core", "Embedded", "2.70 GHz", "3.40 GHz", "6 MB", "8 GT/s", "4", "4", "DDR4-2133, …", "64-bit", "14 nm", "45 W", "Launched", "Q4'15", "6th Gen i5"],
+    ["i5-6440HQ", "Core", "Mobile", "2.60 GHz", "3.50 GHz", "6 MB", "8 GT/s", "4", "4", "DDR4-2133, …", "64-bit", "14 nm", "45 W", "Discontinued", "Q3'15", "6th Gen i5"],
+    ["i5-6442EQ", "Core", "Embedded", "1.90 GHz", "2.70 GHz", "6 MB", "8 GT/s", "4", "4", "DDR4-2133, …", "64-bit", "14 nm", "25 W", "Launched", "Q4'15", "6th Gen i5"],
+    ["i5-6500", "Core", "Desktop", "3.20 GHz", "3.60 GHz", "6 MB", "8 GT/s", "4", "4", "DDR4-1866/2…", "64-bit", "14 nm", "65 W", "Launched", "Q3'15", "6th Gen i5"],
+    ["i5-6500T", "Core", "Desktop", "2.50 GHz", "3.10 GHz", "6 MB", "8 GT/s", "4", "4", "DDR4-1866/2…", "64-bit", "14 nm", "35 W", "Discontinued", "Q3'15", "6th Gen i5"],
+    ["i5-6500TE", "Core", "Embedded", "2.30 GHz", "3.30 GHz", "6 MB", "8 GT/s", "4", "4", "DDR4-1866/2…", "64-bit", "14 nm", "35 W", "Launched", "Q4'15", "6th Gen i5"],
+    ["i5-6585R", "Core", "Desktop", "2.80 GHz", "3.60 GHz", "6 MB", "8 GT/s", "4", "4", "DDR4-1866/2…", "64-bit", "14 nm", "65 W", "Discontinued", "Q2'16", "6th Gen i5"],
+    ["i5-6600", "Core", "Desktop", "3.30 GHz", "3.90 GHz", "6 MB", "8 GT/s", "4", "4", "DDR4-1866/2…", "64-bit", "14 nm", "65 W", "Discontinued", "Q3'15", "6th Gen i5"],
+    ["i5-6600K", "Core", "Desktop", "3.50 GHz", "3.90 GHz", "6 MB", "8 GT/s", "4", "4", "DDR4-1866/2…", "64-bit", "14 nm", "91 W", "Discontinued", "Q3'15", "6th Gen i5"],
+    ["i5-6600T", "Core", "Desktop", "2.70 GHz", "3.50 GHz", "6 MB", "8 GT/s", "4", "4", "DDR4-1866/2…", "64-bit", "14 nm", "35 W", "Discontinued", "Q3'15", "6th Gen i5"],
+    ["i5-6685R", "Core", "Desktop", "3.20 GHz", "3.80 GHz", "6 MB", "8 GT/s", "4", "4", "DDR4-1866/2…", "64-bit", "14 nm", "65 W", "Discontinued", "Q2'16", "6th Gen i5"],
+    ["i5-7200U", "Core", "Mobile", "2.50 GHz", "3.10 GHz", "3 MB", "4 GT/s", "2", "4", "DDR4-2133, …", "64-bit", "14 nm", "15 W", "Discontinued", "Q3'16", "7th Gen i5"],
+    ["i5-7260U", "Core", "Mobile", "2.20 GHz", "3.40 GHz", "4 MB", "", "2", "4", "DDR4-2133, …", "64-bit", "14 nm", "15 W", "Discontinued", "Q1'17", "7th Gen i5"],
+    ["i5-7267U", "Core", "Mobile", "3.10 GHz", "3.50 GHz", "4 MB", "4 GT/s", "2", "4", "DDR4-2133, …", "64-bit", "14 nm", "28 W", "Discontinued", "Q1'17", "7th Gen i5"],
+    ["i5-7287U", "Core", "Mobile", "3.30 GHz", "3.70 GHz", "4 MB", "4 GT/s", "2", "4", "DDR4-2133, …", "64-bit", "14 nm", "28 W", "Discontinued", "Q1'17", "7th Gen i5"],
+    ["i5-7300HQ", "Core", "Mobile", "2.50 GHz", "3.50 GHz", "6 MB", "8 GT/s", "4", "4", "DDR4-2400, …", "64-bit", "14 nm", "45 W", "Discontinued", "Q1'17", "7th Gen i5"],
+    ["i5-7300U", "Core", "Mobile", "2.60 GHz", "3.50 GHz", "3 MB", "4 GT/s", "2", "4", "DDR4-2133, …", "64-bit", "14 nm", "15 W", "Launched", "Q1'17", "7th Gen i5"],
+    ["i5-7360U", "Core", "Mobile", "2.30 GHz", "3.60 GHz", "4 MB", "4 GT/s", "2", "4", "DDR4-2133, …", "64-bit", "14 nm", "15 W", "Discontinued", "Q1'17", "7th Gen i5"],
+    ["i5-7400", "Core", "Desktop", "3.00 GHz", "3.50 GHz", "6 MB", "8 GT/s", "4", "4", "DDR4-2133/2…", "64-bit", "14 nm", "65 W", "Discontinued", "Q1'17", "7th Gen i5"],
+    ["i5-7400T", "Core", "Desktop", "2.40 GHz", "3.00 GHz", "6 MB", "8 GT/s", "4", "4", "DDR4-2133/2…", "64-bit", "14 nm", "35 W", "Discontinued", "Q1'17", "7th Gen i5"],
+    ["i5-7440EQ", "Core", "Embedded", "2.90 GHz", "3.60 GHz", "6 MB", "8 GT/s", "4", "4", "DDR4-2400", "64-bit", "14 nm", "45 W", "Launched", "Q1'17", "7th Gen i5"],
+    ["i5-7440HQ", "Core", "Mobile", "2.80 GHz", "3.80 GHz", "6 MB", "8 GT/s", "4", "4", "DDR4-2400, …", "64-bit", "14 nm", "45 W", "Discontinued", "Q1'17", "7th Gen i5"],
+    ["i5-7442EQ", "Core", "Embedded", "2.10 GHz", "2.90 GHz", "6 MB", "", "4", "4", "DDR4-2400", "64-bit", "14 nm", "25 W", "Launched", "Q1'17", "7th Gen i5"],
+    ["i5-7500", "Core", "Desktop", "3.40 GHz", "3.80 GHz", "6 MB", "8 GT/s", "4", "4", "DDR4-2133/2…", "64-bit", "14 nm", "65 W", "Launched", "Q1'17", "7th Gen i5"],
+    ["i5-7500T", "Core", "Desktop", "2.70 GHz", "3.30 GHz", "6 MB", "8 GT/s", "4", "4", "DDR4-2133/2…", "64-bit", "14 nm", "35 W", "Launched", "Q1'17", "7th Gen i5"],
+    ["i5-7600", "Core", "Desktop", "3.50 GHz", "4.10 GHz", "6 MB", "8 GT/s", "4", "4", "DDR4-2133/2…", "64-bit", "14 nm", "65 W", "Discontinued", "Q1'17", "7th Gen i5"],
+    ["i5-7600K", "Core", "Desktop", "3.80 GHz", "4.20 GHz", "6 MB", "8 GT/s", "4", "4", "DDR4-2133/2…", "64-bit", "14 nm", "91 W", "Discontinued", "Q1'17", "7th Gen i5"],
+    ["i5-7600T", "Core", "Desktop", "2.80 GHz", "3.70 GHz", "6 MB", "8 GT/s", "4", "4", "DDR4-2133/2…", "64-bit", "14 nm", "35 W", "Discontinued", "Q1'17", "7th Gen i5"],
+    ["i5-7640X", "Core", "Desktop", "4.00 GHz", "4.20 GHz", "6 MB", "8 GT/s", "4", "", "DDR4-2666", "64-bit", "14 nm", "112 W", "Discontinued", "Q2'17", "X-series"],
+    ["i5-7Y54", "Core", "Mobile", "1.20 GHz", "3.20 GHz", "4 MB", "4 GT/s", "2", "4", "LPDDR3-1866…", "64-bit", "14 nm", "4.5 W", "Discontinued", "Q3'16", "7th Gen i5"],
+    ["i5-7Y57", "Core", "Mobile", "1.20 GHz", "3.30 GHz", "4 MB", "4 GT/s", "2", "4", "LPDDR3-1866…", "64-bit", "14 nm", "4.5 W", "Discontinued", "Q1'17", "7th Gen i5"],
+    ["i5-8305G", "Core", "Mobile", "2.80 GHz", "3.80 GHz", "6 MB", "8 GT/s", "4", "8", "DDR4-2400", "64-bit", "14 nm", "", "Discontinued", "Q1'18", "8th Gen i5"],
+    ["i5-L16G7", "Core", "Mobile", "1.40 GHz", "3.00 GHz", "4 MB", "4 GT/s", "5", "5", "LPDDR4X 426…", "64-bit", "10 nm", "", "Discontinued", "Q2'20", "Legacy"],
+    ["i7-8700", "Core", "Desktop", "3.20 GHz", "4.60 GHz", "12 MB", "8 GT/s", "6", "12", "DDR4-2666", "64-bit", "14 nm", "65 W", "Launched", "Q4'17", "8th Gen i7"],
+    ["i7-1060G7", "Core", "Mobile", "1.00 GHz", "3.80 GHz", "8 MB", "4 GT/s", "4", "8", "LPDDR4-3733", "64-bit", "10 nm", "9 W", "Discontinued", "Q3'19", "10th Gen i7"],
+    ["i7-1068G7", "Core", "Mobile", "1.30 GHz", "3.90 GHz", "8 MB", "4 GT/s", "4", "8", "DDR4-3200, …", "64-bit", "10 nm", "15 W", "Discontinued", "Q3'19", "10th Gen i7"],
+    ["i7-1068NG7", "Core", "Mobile", "2.30 GHz", "4.10 GHz", "8 MB", "4 GT/s", "4", "8", "DDR4-3200, …", "64-bit", "10 nm", "28 W", "Discontinued", "Q2'20", "10th Gen i7"],
+    ["i7-13790F", "Core", "Desktop", "", "5.20 GHz", "33 MB", "", "16", "24", "Up to DDR5 …", "64-bit", "Intel 7", "", "Launched", "Q1'23", "13th Gen i7"],
+    ["i7-14650HX", "Core", "Mobile", "", "5.2 GHz", "30 MB", "", "16", "24", "Up to DDR5 …", "64-bit", "Intel 7", "", "Launched", "Q1'24", "i7 (14th gen)"],
+    ["i7-14700", "Core", "Desktop", "", "5.4 GHz", "33 MB", "", "20", "28", "Up to DDR5 …", "64-bit", "Intel 7", "", "Launched", "Q1'24", "i7 (14th gen)"],
+    ["i7-14700F", "Core", "Desktop", "", "5.4 GHz", "33 MB", "", "20", "28", "Up to DDR5 …", "64-bit", "Intel 7", "", "Launched", "Q1'24", "i7 (14th gen)"],
+    ["i7-14700HX", "Core", "Mobile", "", "5.5 GHz", "33 MB", "", "20", "28", "Up to DDR5 …", "64-bit", "Intel 7", "", "Launched", "Q1'24", "i7 (14th gen)"],
+    ["i7-14700K", "Core", "Desktop", "", "5.6 GHz", "33 MB", "", "20", "28", "Up to DDR5 …", "64-bit", "Intel 7", "", "Launched", "Q4'23", "i7 (14th gen)"],
+    ["i7-14700KF", "Core", "Desktop", "", "5.6 GHz", "33 MB", "", "20", "28", "Up to DDR5 …", "64-bit", "Intel 7", "", "Launched", "Q4'23", "i7 (14th gen)"],
+    ["i7-14700T", "Core", "Desktop", "", "5.2 GHz", "33 MB", "", "20", "28", "Up to DDR5 …", "64-bit", "Intel 7", "", "Launched", "Q1'24", "i7 (14th gen)"],
+    ["i7-5500U", "Core", "Mobile", "2.40 GHz", "3.00 GHz", "4 MB", "5 GT/s", "2", "4", "DDR3L 1333/…", "64-bit", "14 nm", "15 W", "Discontinued", "Q1'15", "5th Gen i7"],
+    ["i7-5550U", "Core", "Mobile", "2.00 GHz", "3.00 GHz", "4 MB", "5 GT/s", "2", "4", "DDR3L 1333/…", "64-bit", "14 nm", "15 W", "Discontinued", "Q1'15", "5th Gen i7"],
+    ["i7-5557U", "Core", "Mobile", "3.10 GHz", "3.40 GHz", "4 MB", "5 GT/s", "2", "4", "DDR3L 1333/…", "64-bit", "14 nm", "28 W", "Discontinued", "Q1'15", "5th Gen i7"],
+    ["i7-5600U", "Core", "Mobile", "2.60 GHz", "3.20 GHz", "4 MB", "5 GT/s", "2", "4", "DDR3L 1333/…", "64-bit", "14 nm", "15 W", "Discontinued", "Q1'15", "5th Gen i7"],
+    ["i7-5650U", "Core", "Mobile", "2.20 GHz", "3.10 GHz", "4 MB", "5 GT/s", "2", "4", "DDR3L 1333/…", "64-bit", "14 nm", "15 W", "Discontinued", "Q1'15", "5th Gen i7"],
+    ["i7-5700EQ", "Core", "Embedded", "2.60 GHz", "3.40 GHz", "6 MB", "5 GT/s", "4", "8", "DDR3L 1600", "64-bit", "14 nm", "47 W", "Discontinued", "Q2'15", "5th Gen i7"],
+    ["i7-5700HQ", "Core", "Mobile", "2.70 GHz", "3.50 GHz", "6 MB", "5 GT/s", "4", "8", "DDR3L 1600/…", "64-bit", "14 nm", "47 W", "Discontinued", "Q2'15", "5th Gen i7"],
+    ["i7-5750HQ", "Core", "Mobile", "2.50 GHz", "3.40 GHz", "6 MB", "5 GT/s", "4", "8", "DDR3L 1600/…", "64-bit", "14 nm", "47 W", "Discontinued", "Q2'15", "5th Gen i7"],
+    ["i7-5775C", "Core", "Desktop", "3.30 GHz", "3.70 GHz", "6 MB", "5 GT/s", "4", "8", "DDR3L-1333/…", "64-bit", "14 nm", "65 W", "Discontinued", "Q2'15", "5th Gen i7"],
+    ["i7-5775R", "Core", "Desktop", "3.30 GHz", "3.80 GHz", "6 MB", "5 GT/s", "4", "8", "DDR3L-1333/…", "64-bit", "14 nm", "65 W", "Discontinued", "Q2'15", "5th Gen i7"],
+    ["i7-5850EQ", "Core", "Embedded", "2.70 GHz", "3.40 GHz", "6 MB", "5 GT/s", "4", "8", "DDR3L 1600", "64-bit", "14 nm", "47 W", "Discontinued", "Q2'15", "5th Gen i7"],
+    ["i7-5850HQ", "Core", "Mobile", "2.70 GHz", "3.60 GHz", "6 MB", "5 GT/s", "4", "8", "DDR3L 1600/…", "64-bit", "14 nm", "47 W", "Discontinued", "Q2'15", "5th Gen i7"],
+    ["i7-5950HQ", "Core", "Mobile", "2.90 GHz", "3.80 GHz", "6 MB", "5 GT/s", "4", "8", "DDR3L 1600/…", "64-bit", "14 nm", "47 W", "Discontinued", "Q2'15", "5th Gen i7"],
+    ["i7-6500U", "Core", "Mobile", "2.50 GHz", "3.10 GHz", "4 MB", "4 GT/s", "2", "4", "DDR4-2133, …", "64-bit", "14 nm", "15 W", "Discontinued", "Q3'15", "6th Gen i7"],
+    ["i7-6560U", "Core", "Mobile", "2.20 GHz", "3.20 GHz", "4 MB", "4 GT/s", "2", "4", "DDR4-2133, …", "64-bit", "14 nm", "15 W", "Discontinued", "Q3'15", "6th Gen i7"],
+    ["i7-6567U", "Core", "Mobile", "3.30 GHz", "3.60 GHz", "4 MB", "4 GT/s", "2", "4", "DDR4-2133, …", "64-bit", "14 nm", "28 W", "Discontinued", "Q3'15", "6th Gen i7"],
+    ["i7-6600U", "Core", "Mobile", "2.60 GHz", "3.40 GHz", "4 MB", "4 GT/s", "2", "4", "DDR4-2133, …", "64-bit", "14 nm", "15 W", "Launched", "Q3'15", "6th Gen i7"],
+    ["i7-6650U", "Core", "Mobile", "2.20 GHz", "3.40 GHz", "4 MB", "4 GT/s", "2", "4", "DDR4-2133, …", "64-bit", "14 nm", "15 W", "Discontinued", "Q3'15", "6th Gen i7"],
+    ["i7-6660U", "Core", "Mobile", "2.40 GHz", "3.40 GHz", "4 MB", "4 GT/s", "2", "4", "DDR4-2133, …", "64-bit", "14 nm", "15 W", "Discontinued", "Q1'16", "6th Gen i7"],
+    ["i7-6700", "Core", "Desktop", "3.40 GHz", "4.00 GHz", "8 MB", "8 GT/s", "4", "8", "DDR4-1866/2…", "64-bit", "14 nm", "65 W", "Launched", "Q3'15", "6th Gen i7"],
+    ["i7-6700HQ", "Core", "Mobile", "2.60 GHz", "3.50 GHz", "6 MB", "8 GT/s", "4", "8", "DDR4-2133, …", "64-bit", "14 nm", "45 W", "Discontinued", "Q3'15", "6th Gen i7"],
+    ["i7-6700K", "Core", "Desktop", "4.00 GHz", "4.20 GHz", "8 MB", "8 GT/s", "4", "8", "DDR4-1866/2…", "64-bit", "14 nm", "91 W", "Discontinued", "Q3'15", "6th Gen i7"],
+    ["i7-6700T", "Core", "Desktop", "2.80 GHz", "3.60 GHz", "8 MB", "8 GT/s", "4", "8", "DDR4-1866/2…", "64-bit", "14 nm", "35 W", "Discontinued", "Q3'15", "6th Gen i7"],
+    ["i7-6700TE", "Core", "Embedded", "2.40 GHz", "3.40 GHz", "8 MB", "8 GT/s", "4", "8", "DDR4-1866/2…", "64-bit", "14 nm", "35 W", "Launched", "Q4'15", "6th Gen i7"],
+    ["i7-6770HQ", "Core", "Mobile", "2.60 GHz", "3.50 GHz", "6 MB", "8 GT/s", "4", "8", "DDR4-2133, …", "64-bit", "14 nm", "45 W", "Discontinued", "Q1'16", "6th Gen i7"],
+    ["i7-6785R", "Core", "Desktop", "3.30 GHz", "3.90 GHz", "8 MB", "8 GT/s", "4", "8", "DDR4-1866/2…", "64-bit", "14 nm", "65 W", "Discontinued", "Q2'16", "6th Gen i7"],
+    ["i7-6820EQ", "Core", "Embedded", "2.80 GHz", "3.50 GHz", "8 MB", "8 GT/s", "4", "8", "DDR4-2133, …", "64-bit", "14 nm", "45 W", "Launched", "Q4'15", "6th Gen i7"],
+    ["i7-6820HK", "Core", "Mobile", "2.70 GHz", "3.60 GHz", "8 MB", "8 GT/s", "4", "8", "DDR4-2133, …", "64-bit", "14 nm", "45 W", "Discontinued", "Q3'15", "6th Gen i7"],
+    ["i7-6820HQ", "Core", "Mobile", "2.70 GHz", "3.60 GHz", "8 MB", "8 GT/s", "4", "8", "DDR4-2133, …", "64-bit", "14 nm", "45 W", "Discontinued", "Q3'15", "6th Gen i7"],
+    ["i7-6822EQ", "Core", "Embedded", "2.00 GHz", "2.80 GHz", "8 MB", "8 GT/s", "4", "8", "DDR4-2133, …", "64-bit", "14 nm", "25 W", "Launched", "Q4'15", "6th Gen i7"],
+    ["i7-6870HQ", "Core", "Mobile", "2.70 GHz", "3.60 GHz", "8 MB", "8 GT/s", "4", "8", "DDR4-2133, …", "64-bit", "14 nm", "45 W", "Discontinued", "Q1'16", "6th Gen i7"],
+    ["i7-6920HQ", "Core", "Mobile", "2.90 GHz", "3.80 GHz", "8 MB", "8 GT/s", "4", "8", "DDR4-2133, …", "64-bit", "14 nm", "45 W", "Discontinued", "Q3'15", "6th Gen i7"],
+    ["i7-6970HQ", "Core", "Mobile", "2.80 GHz", "3.70 GHz", "8 MB", "8 GT/s", "4", "8", "DDR4-2133, …", "64-bit", "14 nm", "45 W", "Discontinued", "Q1'16", "6th Gen i7"],
+    ["i7-7500U", "Core", "Mobile", "2.70 GHz", "3.50 GHz", "4 MB", "4 GT/s", "2", "4", "DDR4-2133, …", "64-bit", "14 nm", "15 W", "Discontinued", "Q3'16", "7th Gen i7"],
+    ["i7-7560U", "Core", "Mobile", "2.40 GHz", "3.80 GHz", "4 MB", "", "2", "4", "DDR4-2133, …", "64-bit", "14 nm", "15 W", "Discontinued", "Q1'17", "7th Gen i7"],
+    ["i7-7567U", "Core", "Mobile", "3.50 GHz", "4.00 GHz", "4 MB", "4 GT/s", "2", "4", "DDR4-2133, …", "64-bit", "14 nm", "28 W", "Discontinued", "Q1'17", "7th Gen i7"],
+    ["i7-7600U", "Core", "Mobile", "2.80 GHz", "3.90 GHz", "4 MB", "4 GT/s", "2", "4", "DDR4-2133, …", "64-bit", "14 nm", "15 W", "Launched", "Q3'16", "7th Gen i7"],
+    ["i7-7660U", "Core", "Mobile", "2.50 GHz", "4.00 GHz", "4 MB", "4 GT/s", "2", "4", "DDR4-2133, …", "64-bit", "14 nm", "15 W", "Discontinued", "Q1'17", "7th Gen i7"],
+    ["i7-7700", "Core", "Desktop", "3.60 GHz", "4.20 GHz", "8 MB", "8 GT/s", "4", "8", "DDR4-2133/2…", "64-bit", "14 nm", "65 W", "Launched", "Q1'17", "7th Gen i7"],
+    ["i7-7700HQ", "Core", "Mobile", "2.80 GHz", "3.80 GHz", "6 MB", "8 GT/s", "4", "8", "DDR4-2400, …", "64-bit", "14 nm", "45 W", "Discontinued", "Q1'17", "7th Gen i7"],
+    ["i7-7700K", "Core", "Desktop", "4.20 GHz", "4.50 GHz", "8 MB", "8 GT/s", "4", "8", "DDR4-2133/2…", "64-bit", "14 nm", "91 W", "Discontinued", "Q1'17", "7th Gen i7"],
+    ["i7-7700T", "Core", "Desktop", "2.90 GHz", "3.80 GHz", "8 MB", "8 GT/s", "4", "8", "DDR4-2133/2…", "64-bit", "14 nm", "35 W", "Launched", "Q1'17", "7th Gen i7"],
+    ["i7-7740X", "Core", "Desktop", "4.30 GHz", "4.50 GHz", "8 MB", "8 GT/s", "4", "8", "DDR4-2666", "64-bit", "14 nm", "112 W", "Discontinued", "Q2'17", "X-series"],
+    ["i7-7800X", "Core", "Desktop", "3.50 GHz", "4.00 GHz", "8.25 MB", "8 GT/s", "6", "12", "DDR4-2400", "64-bit", "14 nm", "140 W", "Discontinued", "Q2'17", "X-series"],
+    ["i7-7820EQ", "Core", "Embedded", "3.00 GHz", "3.70 GHz", "8 MB", "", "4", "8", "DDR4-2400", "64-bit", "14 nm", "45 W", "Launched", "Q1'17", "7th Gen i7"],
+    ["i7-7820HK", "Core", "Mobile", "2.90 GHz", "3.90 GHz", "8 MB", "8 GT/s", "4", "8", "DDR4-2400, …", "64-bit", "14 nm", "45 W", "Discontinued", "Q1'17", "7th Gen i7"],
+    ["i7-7820HQ", "Core", "Mobile", "2.90 GHz", "3.90 GHz", "8 MB", "8 GT/s", "4", "8", "DDR4-2400, …", "64-bit", "14 nm", "45 W", "Discontinued", "Q1'17", "7th Gen i7"],
+    ["i7-7820X", "Core", "Desktop", "3.60 GHz", "4.30 GHz", "11 MB", "8 GT/s", "8", "16", "DDR4-2666", "64-bit", "14 nm", "140 W", "Discontinued", "Q2'17", "X-series"],
+    ["i7-7920HQ", "Core", "Mobile", "3.10 GHz", "4.10 GHz", "8 MB", "8 GT/s", "4", "8", "DDR4-2400, …", "64-bit", "14 nm", "45 W", "Discontinued", "Q1'17", "7th Gen i7"],
+    ["i7-7Y75", "Core", "Mobile", "1.30 GHz", "3.60 GHz", "4 MB", "4 GT/s", "2", "4", "LPDDR3-1866…", "64-bit", "14 nm", "4.5 W", "Discontinued", "Q3'16", "7th Gen i7"],
+    ["i7-8705G", "Core", "Mobile", "3.10 GHz", "4.10 GHz", "8 MB", "8 GT/s", "4", "8", "DDR4-2400", "64-bit", "14 nm", "", "Discontinued", "Q1'18", "8th Gen i7"],
+    ["i7-8706G", "Core", "Mobile", "3.10 GHz", "4.10 GHz", "8 MB", "8 GT/s", "4", "8", "DDR4-2400", "64-bit", "14 nm", "", "Discontinued", "Q1'18", "8th Gen i7"],
+    ["i7-8709G", "Core", "Mobile", "3.10 GHz", "4.10 GHz", "8 MB", "8 GT/s", "4", "8", "DDR4-2400", "64-bit", "14 nm", "", "Discontinued", "Q1'18", "8th Gen i7"],
+    ["i7-8809G", "Core", "Mobile", "3.10 GHz", "4.20 GHz", "8 MB", "8 GT/s", "4", "8", "DDR4-2400", "64-bit", "14 nm", "", "Discontinued", "Q1'18", "8th Gen i7"],
+    ["i7-9800X", "Core", "Desktop", "3.80 GHz", "4.40 GHz", "16.5 MB", "8 GT/s", "8", "16", "DDR4-2666", "", "14 nm", "165 W", "Discontinued", "Q4'18", "X-series"],
+    ["i9-10900X", "Core", "Desktop", "3.70 GHz", "4.50 GHz", "19.25 MB", "8 GT/s", "10", "20", "DDR4-2933", "", "14 nm", "165 W", "Launched", "Q4'19", "X-series"],
+    ["i9-10920X", "Core", "Desktop", "3.50 GHz", "4.60 GHz", "19.25 MB", "8 GT/s", "12", "24", "DDR4-2933", "", "14 nm", "165 W", "Launched", "Q4'19", "X-series"],
+    ["i9-10940X", "Core", "Desktop", "3.30 GHz", "4.60 GHz", "19.25 MB", "8 GT/s", "14", "28", "DDR4-2933", "", "14 nm", "165 W", "Launched", "Q4'19", "X-series"],
+    ["i9-10980XE", "Core", "Desktop", "3.00 GHz", "4.60 GHz", "24.75 MB", "8 GT/s", "18", "36", "DDR4-2933", "", "14 nm", "165 W", "Launched", "Q4'19", "X-series"],
+    ["i9-14900", "Core", "Desktop", "", "5.8 GHz", "36 MB", "", "24", "32", "Up to DDR5 …", "64-bit", "Intel 7", "", "Launched", "Q1'24", "i9 (14th gen)"],
+    ["i9-14900F", "Core", "Desktop", "", "5.8 GHz", "36 MB", "", "24", "32", "Up to DDR5 …", "64-bit", "Intel 7", "", "Launched", "Q1'24", "i9 (14th gen)"],
+    ["i9-14900HX", "Core", "Mobile", "", "5.8 GHz", "36 MB", "", "24", "32", "Up to DDR5 …", "64-bit", "Intel 7", "", "Launched", "Q1'24", "i9 (14th gen)"],
+    ["i9-14900K", "Core", "Desktop", "", "6 GHz", "36 MB", "", "24", "32", "Up to DDR5 …", "64-bit", "Intel 7", "", "Launched", "Q4'23", "i9 (14th gen)"],
+    ["i9-14900KF", "Core", "Desktop", "", "6 GHz", "36 MB", "", "24", "32", "Up to DDR5 …", "64-bit", "Intel 7", "", "Launched", "Q4'23", "i9 (14th gen)"],
+    ["i9-14900T", "Core", "Desktop", "", "5.5 GHz", "36 MB", "", "24", "32", "Up to DDR5 …", "64-bit", "Intel 7", "", "Launched", "Q1'24", "i9 (14th gen)"],
+    ["i9-7900X", "Core", "Desktop", "3.30 GHz", "4.30 GHz", "13.75 MB", "8 GT/s", "10", "20", "DDR4-2666", "64-bit", "14 nm", "140 W", "Discontinued", "Q2'17", "X-series"],
+    ["i9-7920X", "Core", "Desktop", "2.90 GHz", "4.30 GHz", "16.5 MB", "8 GT/s", "12", "24", "DDR4-2666", "64-bit", "14 nm", "140 W", "Discontinued", "Q3'17", "X-series"],
+    ["i9-7940X", "Core", "Desktop", "3.10 GHz", "4.30 GHz", "19.25 MB", "8 GT/s", "14", "28", "DDR4-2666", "", "", "165 W", "Discontinued", "Q3'17", "X-series"],
+    ["i9-7960X", "Core", "Desktop", "2.80 GHz", "4.20 GHz", "22 MB", "8 GT/s", "16", "32", "DDR4-2666", "", "", "165 W", "Discontinued", "Q3'17", "X-series"],
+    ["i9-7980XE", "Core", "Desktop", "2.60 GHz", "4.20 GHz", "24.75 MB", "8 GT/s", "18", "36", "DDR4-2666", "", "", "165 W", "Discontinued", "Q3'17", "X-series"],
+    ["i9-9820X", "Core", "Desktop", "3.30 GHz", "4.10 GHz", "16.5 MB", "8 GT/s", "10", "20", "DDR4-2666", "", "14 nm", "165 W", "Discontinued", "Q4'18", "X-series"],
+    ["i9-9900X", "Core", "Desktop", "3.50 GHz", "4.40 GHz", "19.25 MB", "8 GT/s", "10", "20", "DDR4-2666", "", "14 nm", "165 W", "Discontinued", "Q4'18", "X-series"],
+    ["i9-9920X", "Core", "Desktop", "3.50 GHz", "4.40 GHz", "19.25 MB", "8 GT/s", "12", "24", "DDR4-2666", "", "14 nm", "165 W", "Discontinued", "Q4'18", "X-series"],
+    ["i9-9940X", "Core", "Desktop", "3.30 GHz", "4.40 GHz", "19.25 MB", "8 GT/s", "14", "28", "DDR4-2666", "", "14 nm", "165 W", "Discontinued", "Q4'18", "X-series"],
+    ["i9-9960X", "Core", "Desktop", "3.10 GHz", "4.40 GHz", "22 MB", "8 GT/s", "16", "32", "DDR4-2666", "", "14 nm", "165 W", "Discontinued", "Q4'18", "X-series"],
+    ["i9-9980XE", "Core", "Desktop", "3.00 GHz", "4.40 GHz", "24.75 MB", "8 GT/s", "18", "36", "DDR4-2666", "", "14 nm", "165 W", "Discontinued", "Q4'18", "X-series"],
+    ["m3-6Y30", "Core", "Mobile", "900 MHz", "2.20 GHz", "4 MB", "4 GT/s", "2", "4", "LPDDR3-1866…", "64-bit", "14 nm", "4.5 W", "Discontinued", "Q3'15", "6th Gen m"],
+    ["m3-7Y30", "Core", "Mobile", "1.00 GHz", "2.60 GHz", "4 MB", "4 GT/s", "2", "4", "LPDDR3-1866…", "64-bit", "14 nm", "4.5 W", "Discontinued", "Q3'16", "7th Gen m"],
+    ["m3-7Y32", "Core", "Mobile", "1.10 GHz", "3.00 GHz", "4 MB", "4 GT/s", "2", "4", "LPDDR3-1866…", "64-bit", "14 nm", "4.5 W", "Discontinued", "Q2'17", "7th Gen m"],
+    ["m5-6Y54", "Core", "Mobile", "1.10 GHz", "2.70 GHz", "4 MB", "4 GT/s", "2", "4", "LPDDR3-1866…", "64-bit", "14 nm", "4.5 W", "Discontinued", "Q3'15", "6th Gen m"],
+    ["m5-6Y57", "Core", "Mobile", "1.10 GHz", "2.80 GHz", "4 MB", "4 GT/s", "2", "4", "LPDDR3-1866…", "64-bit", "14 nm", "4.5 W", "Discontinued", "Q3'15", "6th Gen m"],
+    ["m7-6Y75", "Core", "Mobile", "1.20 GHz", "3.10 GHz", "4 MB", "4 GT/s", "2", "4", "LPDDR3-1866…", "64-bit", "14 nm", "4.5 W", "Discontinued", "Q3'15", "6th Gen m"],
+    ["x5-E3930", "Atom", "Embedded", "1.30 GHz", "", "2 MB", "", "2", "2", "DDR3L (ECC …", "64-bit", "14 nm", "6.5 W", "Launched", "Q4'16", "Atom X"],
+    ["x5-E3940", "Atom", "Embedded", "1.60 GHz", "", "2 MB", "", "4", "4", "DDR3L (ECC …", "64-bit", "14 nm", "9.5 W", "Launched", "Q4'16", "Atom X"],
+    ["x5-E3950", "Atom", "Embedded", "1.60 GHz", "", "2 MB", "", "4", "4", "DDR3L (ECC …", "64-bit", "14 nm", "9.5 W", "Launched", "Q4'16", "Atom X"],
+    ["x5-E8000", "Atom", "Embedded", "1.04 GHz", "", "2 MB", "", "4", "4", "DDR3L-1600", "64-bit", "14 nm", "5 W", "Launched", "Q1'16", "Atom X"],
+    ["x6200FE", "Atom", "Embedded", "1.00 GHz", "", "1.5 MB", "", "2", "2", "4x32 LPDDR4…", "64-bit", "10 nm", "4.5 W", "Launched", "Q1'21", "Atom X"],
+    ["x6211E", "Atom", "Embedded", "1.30 GHz", "", "1.5 MB", "", "2", "2", "4x32 LPDDR4…", "64-bit", "10 nm", "6 W", "Launched", "Q1'21", "Atom X"],
+    ["x6212RE", "Atom", "Embedded", "1.20 GHz", "", "1.5 MB", "", "2", "2", "4x32 LPDDR4…", "64-bit", "10 nm", "6 W", "Launched", "Q1'21", "Atom X"],
+    ["x6413E", "Atom", "Embedded", "1.50 GHz", "", "1.5 MB", "", "4", "4", "4x32 LPDDR4…", "64-bit", "10 nm", "9 W", "Launched", "Q1'21", "Atom X"],
+    ["x6414RE", "Atom", "Embedded", "1.50 GHz", "", "1.5 MB", "", "4", "4", "4x32 LPDDR4…", "64-bit", "10 nm", "9 W", "Launched", "Q1'21", "Atom X"],
+    ["x6425E", "Atom", "Embedded", "2.00 GHz", "", "1.5 MB", "", "4", "4", "4x32 LPDDR4…", "64-bit", "10 nm", "12 W", "Launched", "Q1'21", "Atom X"],
+    ["x6425RE", "Atom", "Embedded", "1.90 GHz", "", "1.5 MB", "", "4", "4", "4x32 LPDDR4…", "64-bit", "10 nm", "12 W", "Launched", "Q1'21", "Atom X"],
+    ["x6427FE", "Atom", "Embedded", "1.90 GHz", "", "1.5 MB", "", "4", "4", "4x32 LPDDR4…", "64-bit", "10 nm", "12 W", "Launched", "Q1'21", "Atom X"],
+  ]
+</script>
+
+<table id="table">
+<!-- content filled in dynamically below -->
+</table>
+
+<script type="module">
+let sortcol = 0
+
+function load_page()
+  {
+    const table = document.querySelector("#table")
+    for (;;) /* get rid of previous contents, if any */
+      {
+        const child = table.firstChild
+        if (child === null)
+            break
+        table.removeChild(child)
+      } /*while*/
+    const thead = document.createElement("thead")
+      {
+        const row = document.createElement("tr")
+        const cell = document.createElement("th")
+        cell.textContent = ""
+        row.appendChild(cell)
+        let fieldindex = 0
+        for (const name of fieldnames)
+          {
+            const cell = document.createElement("th")
+            const sortbut = document.createElement("button")
+            sortbut.setAttribute("onclick", "mymod.set_sort_order(" + fieldindex.toString() + ")")
+            sortbut.textContent = name
+            cell.appendChild(sortbut)
+            row.appendChild(cell)
+            ++fieldindex
+          } /*for*/
+        thead.appendChild(row)
+      }
+    table.appendChild(thead)
+    const tbody = document.createElement("tbody")
+    let index = 0
+    for (const fields of fieldvalues)
+      {
+        const row = document.createElement("tr")
+        const cell = document.createElement("td")
+        cell.setAttribute("class", "c4")
+        ++index
+        cell.textContent = index.toString()
+        row.appendChild(cell)
+        let first = true
+        for (const value of fields)
+          {
+            const cell = document.createElement("td")
+            cell.setAttribute("class", first ? "c5" : "c3")
+            cell.textContent = value
+            row.appendChild(cell)
+            first = false
+          } /*for*/
+        tbody.appendChild(row)
+      } /*for*/
+    table.appendChild(tbody)
+  } /*load_page*/
+
+const sort_conv = /* conversions of various field types for sorting purposes */
+    {
+        "" : (s) => s,
+        "num" : /* number possibly followed by some units (ignored) */
+            function (s)
+              {
+                const val = Number.parseFloat(s)
+                const res = Number.isNaN(val) ? Number.POSITIVE_INFINITY : val
+                  /* sort invalid values to the end */
+                return res
+              } /*function*/,
+        "num+units" :
+          /* number possibly followed by some units, only first char of which is interpreted */
+            function (s)
+              {
+                const s1 = s.replaceAll("  ", " ")
+                const splitpoint = s1.indexOf(" ")
+                const val = Number.parseFloat(s1.slice(0, splitpoint))
+                const unit_first = splitpoint >= 0 ? s1.charAt(splitpoint + 1) : ""
+                const factor =
+                    unit_first == "k" || unit_first == "K" ?
+                        1000
+                    : unit_first == "M" ?
+                        1000000
+                    : unit_first == "G" ?
+                        1000000000
+                    :
+                        1
+                const res = Number.isNaN(val) ? Number.POSITIVE_INFINITY : val * factor
+                  /* sort invalid values to the end */
+                return res
+              } /*function*/,
+        "qdate" : /* e.g. format “Q1'16” -- sort by year, then by quarter number */
+            function (s)
+              {
+                const splitpoint = s.indexOf("'")
+                const res = splitpoint >= 0 ?
+                        s.slice(splitpoint + 1) + s.slice(0, splitpoint)
+                    :
+                        s
+                return res
+              } /*function*/,
+    }
+
+function set_sort_order(fieldindex)
+  /* Note that each change of sort order is applied on top of
+    the previous sort order. To start again from the default
+    ordering, refresh the page. */
+  {
+    if (sortcol != fieldindex)
+      {
+        sortcol = fieldindex
+        fieldvalues.sort
+          (
+            function (a, b)
+              {
+                const fieldtype = fieldtypes[fieldindex]
+                const conv = sort_conv[fieldtype]
+                const key_a = conv(a[fieldindex])
+                const key_b = conv(b[fieldindex])
+                return key_a < key_b ? -1 : key_a > key_b ? 1 : 0
+              } /*function*/
+          )
+        load_page()
+      } /*if*/
+  } /*set_sort_order*/
+
+/* exports: */
+window.mymod = {"set_sort_order" : set_sort_order}
+
+load_page()
+</script>
+<br>
+<a class="btn" href="https://www.wlug.org.nz/cpu/intel_sort/">Top</a>
+</body>
+</html>
