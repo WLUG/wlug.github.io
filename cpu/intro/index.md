@@ -13,9 +13,9 @@
 TBA
 
 
-* Link to [Intel](../intel) This is in the web-site but page width is lost. Multiple character heights per row due to compressing width of table.
+* Link to [Intel](../intel) This provides links to the CPU data-sheets and mouse-over provides a comment with an expansion of the truncated data. Due to design of the Nikola websites display width, rows are multi-character in height.
 
-* Link to [Intel](../../intel_cpu_table.html) This is full screen outside of the web-site. One character height per row.
+* Link to [Intel with sorting](../../intel_cpu_sort.html) This provides sorting of the columns. Use an HD display to view all rows having a single character height.  
 
 
 * Link to [AMD](../amd)
