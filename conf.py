@@ -185,7 +185,7 @@ NAVIGATION_ALT_LINKS = {
             (
                 ('/cpu/intro', 'Introduction'),
                 ('/cpu/intel/', 'Intel CPUs'),
-                ('/intel_cpu_sort.html', 'Intel CPUs - Sorted'),                
+                ('/intel_cpu_sort.html', 'Intel CPUs - Sortable'),                
                 ('/cpu/amd/', 'AMD CPUs'),
             ),
             'CPUs'
