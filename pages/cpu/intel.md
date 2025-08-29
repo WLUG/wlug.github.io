@@ -8,11 +8,15 @@
 .. type: text
 .. hidetitle: true
 
-## Intel
+## Intel CPUs: *Unsupported* in Windows 11 24H2
 
-[Introduction](../intro)
+️⬅️[Introduction](../intro)
 
-2025-08-15
+These CPU's were supported in at least one of twelve releases of Windows 10 since 2015, or in the previous two releases of Windows 11.
+
+Where the data is truncated, hover over the cell to get the full descrition.
+
+Each model of CPU has a link to the Intel data sheet. Sometimes there are two data sheets on the Intel website. The second data sheet is obtained by clicking on the asterisk.
 
 
 <!DOCTYPE html>
