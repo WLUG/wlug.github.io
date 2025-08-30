@@ -14,9 +14,7 @@ CPU's that may be available in the *Used Computer* market and suitable for runni
 
 ## Links
 
-* [Intel](../../intel_cpu.html) CPU table.
-* 
-* [Intel](../intel) CPU table. This table also provides links to the CPU technical specifications and mouse-over provides a messagebox with an expansion of the truncated data.
+* [Intel](../../intel_cpu.html) CPU table. This table also provides links to the CPU technical specifications and mouse-over provides a messagebox with an expansion of the truncated data. Use an HD display to view all rows while having a single character height.  
 
 * [Intel with sorting](../../intel_cpu_sort.html) of CPU table. This table provides sorting of the columns. Use an HD display to view all rows while having a single character height.  
 
