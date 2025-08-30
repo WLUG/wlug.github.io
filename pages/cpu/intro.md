@@ -14,7 +14,9 @@ CPU's that may be available in the *Used Computer* market and suitable for runni
 
 ## Links
 
-* [Intel](../intel) CPU table. This table also provides links to the CPU data-sheets and mouse-over provides a messagebox with an expansion of the truncated data. Due to design of the Nikola websites display width, rows are multi-character in height.
+* [Intel](../../intel_cpu.html) CPU table.
+* 
+* [Intel](../intel) CPU table. This table also provides links to the CPU technical specifications and mouse-over provides a messagebox with an expansion of the truncated data.
 
 * [Intel with sorting](../../intel_cpu_sort.html) of CPU table. This table provides sorting of the columns. Use an HD display to view all rows while having a single character height.  
 
